@@ -29,7 +29,7 @@
             padding: 30px;
             max-width: 1400px; /* Plus large pour le canvas et les éléments */
             width: 100%;
-            display: flex;
+            display: none; /* Initialement masqué par défaut */
             flex-direction: column;
             gap: 20px;
         }
@@ -196,7 +196,7 @@
             width: 100%;
             height: 100%;
             background-color: #2d3748; /* Gris foncé */
-            display: flex;
+            display: flex; /* Initialement visible par défaut */
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -260,7 +260,7 @@
         </div>
     </div>
 
-    <div class="game-container hidden">
+    <div class="game-container">
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 pixel-font">Mon Salon Pixel Art</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -347,10 +347,11 @@
     <div id="messageBox" class="message-box pixel-font"></div>
 
     <script>
-        // Initialisation du jeu après le chargement complet de la fenêtre
-        window.onload = function() {
+        // Initialisation du jeu après le chargement complet du DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM Content Loaded. Setting up start screen.");
             setupStartScreen();
-        };
+        });
 
         // --- Variables Globales du Jeu ---
         const startScreen = document.getElementById('startScreen');
@@ -725,33 +726,48 @@
                 });
             });
 
-            document.getElementById('startGameBtn').addEventListener('click', () => {
-                console.log("Start Game button clicked!"); // Debugging line
-                try {
-                    const artistName = document.getElementById('artistNameInput').value.trim();
-                    if (artistName) {
-                        player.name = artistName;
-                    } else {
-                        player.name = "Artiste Inconnu";
+            const startGameButton = document.getElementById('startGameBtn');
+            console.log('setupStartScreen: Attempting to attach listener to startGameBtn:', startGameButton); // Debugging line
+            if (startGameButton) {
+                startGameButton.addEventListener('click', () => {
+                    console.log("startGameBtn: Clicked!"); // Debugging line
+                    try {
+                        const artistName = document.getElementById('artistNameInput').value.trim();
+                        if (artistName) {
+                            player.name = artistName;
+                        } else {
+                            player.name = "Artiste Inconnu";
+                        }
+                        console.log("startGameBtn: Player name set to:", player.name); // Debugging line
+                        console.log("startGameBtn: Selected character:", player.character); // Debugging line
+
+                        // Directly manipulate display properties
+                        console.log("startGameBtn: Hiding startScreen...");
+                        startScreen.style.display = 'none';
+                        console.log("startGameBtn: startScreen display after hide:", startScreen.style.display);
+
+                        console.log("startGameBtn: Showing gameContainer...");
+                        gameContainer.style.display = 'flex'; // Use 'flex' as it's a flex container
+                        console.log("startGameBtn: gameContainer display after show:", gameContainer.style.display);
+
+                        initGame();
+                        startTutorial();
+                        console.log("startGameBtn: Game started successfully.");
+                    } catch (error) {
+                        console.error("startGameBtn: Error starting game:", error); // Debugging error
+                        showMessage("Une erreur est survenue au démarrage du jeu.", 'error');
                     }
-                    startScreen.classList.add('hidden');
-                    gameContainer.classList.remove('hidden');
-                    initGame();
-                    startTutorial(); // Lance le tutoriel après le démarrage du jeu
-                    console.log("Game started successfully."); // Debugging line
-                } catch (error) {
-                    console.error("Error starting game:", error); // Debugging error
-                    showMessage("Une erreur est survenue au démarrage du jeu.", 'error');
-                }
-            });
+                });
+            } else {
+                console.error("setupStartScreen: startGameBtn element NOT found! Cannot attach listener."); // Debugging error
+            }
         }
 
         /**
          * Initialise l'état du jeu et les écouteurs d'événements.
          */
         function initGame() {
-            // Configure le canvas pour le dessin
-            // Les dimensions du canvas sont maintenant définies dans le HTML
+            console.log("initGame: Initializing game..."); // Debugging line
             clearCanvas(); // Efface la zone de dessin initiale
 
             // Écouteurs d'événements pour le dessin
@@ -786,6 +802,8 @@
             // Démarrer la boucle de jeu principale (gestion du temps, clients, loyer)
             setInterval(gameTick, 1000); // Chaque seconde
             // Les clients n'apparaissent qu'après le tutoriel
+            console.log("initGame: Game initialized."); // Debugging line
+            animate(); // Start the animation loop
         }
 
         /**
@@ -1107,6 +1125,7 @@
         ];
 
         function startTutorial() {
+            console.log("startTutorial: Tutorial started."); // Debugging line
             tutorialActive = true;
             tutorialStep = 0;
             tutorialNPC = {
@@ -1130,6 +1149,7 @@
         }
 
         function advanceTutorial() {
+            console.log("advanceTutorial: Step", tutorialStep); // Debugging line
             if (tutorialStep < tutorialSteps.length) {
                 const step = tutorialSteps[tutorialStep];
                 tutorialMessage.textContent = step.message.replace("${player.name}", player.name);
@@ -1145,6 +1165,7 @@
                 tutorialDialog.classList.add('hidden');
                 tutorialNPC.state = 'leaving'; // Le PNJ quitte l'écran
                 setInterval(spawnCustomer, 10000); // Commence à faire apparaître les clients
+                console.log("advanceTutorial: Tutorial finished. Customers will now spawn."); // Debugging line
             }
         }
 
