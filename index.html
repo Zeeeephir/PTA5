@@ -726,16 +726,23 @@
             });
 
             document.getElementById('startGameBtn').addEventListener('click', () => {
-                const artistName = document.getElementById('artistNameInput').value.trim();
-                if (artistName) {
-                    player.name = artistName;
-                } else {
-                    player.name = "Artiste Inconnu";
+                console.log("Start Game button clicked!"); // Debugging line
+                try {
+                    const artistName = document.getElementById('artistNameInput').value.trim();
+                    if (artistName) {
+                        player.name = artistName;
+                    } else {
+                        player.name = "Artiste Inconnu";
+                    }
+                    startScreen.classList.add('hidden');
+                    gameContainer.classList.remove('hidden');
+                    initGame();
+                    startTutorial(); // Lance le tutoriel après le démarrage du jeu
+                    console.log("Game started successfully."); // Debugging line
+                } catch (error) {
+                    console.error("Error starting game:", error); // Debugging error
+                    showMessage("Une erreur est survenue au démarrage du jeu.", 'error');
                 }
-                startScreen.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
-                initGame();
-                startTutorial(); // Lance le tutoriel après le démarrage du jeu
             });
         }
 
