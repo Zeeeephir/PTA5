@@ -38,7 +38,9 @@
             background-color: #ffffff; /* Blanc pour le dessin */
             border-radius: 10px;
             width: 100%; /* Rendre le canvas responsif */
-            height: 500px; /* Plus grand pour le studio */
+            max-width: 1000px; /* Limite la largeur maximale pour éviter l'étirement excessif */
+            height: auto; /* Maintient le ratio d'aspect */
+            aspect-ratio: 1000 / 600; /* Définit explicitement le ratio d'aspect pour 1000x600 */
             image-rendering: pixelated; /* Rendu pixelisé pour le canvas */
             cursor: crosshair;
         }
@@ -281,7 +283,7 @@
                     Effacer
                 </button>
             </div>
-            <canvas id="studioCanvas"></canvas>
+            <canvas id="studioCanvas" width="1000" height="600"></canvas>
             <div class="flex justify-center mt-4">
                 <input type="text" id="artNameInput" placeholder="Nom de l'œuvre (optionnel)" class="p-2 border border-gray-300 rounded-md w-full max-w-sm mr-2 pixel-font">
                 <button id="createArtBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg pixel-font">
@@ -395,10 +397,10 @@
 
         // Zone de dessin sur le canvas principal (simule l'emplacement de l'easel)
         const artDrawingArea = {
-            x: 500, // Position X sur le canvas
-            y: 100, // Position Y sur le canvas
-            width: 300,
-            height: 300
+            x: 650, // Position X sur le canvas (ajusté pour 1000x600)
+            y: 150, // Position Y sur le canvas (ajusté pour 1000x600)
+            width: 250, // Largeur de la zone de dessin (ajusté)
+            height: 250 // Hauteur de la zone de dessin (ajusté)
         };
 
         // État du client
@@ -465,7 +467,7 @@
 
         // Articles de la boutique (avec leurs positions dans le studio)
         const shopItems = [
-            { id: 'easel', name: 'Chevalet Amélioré', cost: 50, description: 'Augmente la qualité de base de vos œuvres.', effect: { fame: 0.1 } , bought: false, studioX: 500, studioY: 100, width: 300, height: 300, type: 'easel'}, // Position de l'easel
+            // Note: 'easel' est maintenant la zone de dessin, pas un objet achetable distinct
             { id: 'decor', name: 'Décoration Murale', cost: 30, description: 'Améliore l\'ambiance du studio, attire plus de clients.', effect: { reputation: 5 }, bought: false, studioX: 100, studioY: 50, width: 80, height: 60, type: 'decor'},
             { id: 'lights', name: 'Éclairage d\'Atelier', cost: 75, description: 'Rend vos couleurs plus éclatantes, améliore la qualité.', effect: { fame: 0.2 }, bought: false, studioX: studioCanvas.width / 2, studioY: 30, width: 40, height: 40, type: 'light'},
             { id: 'sofa', name: 'Canapé Confortable', cost: 60, description: 'Les clients attendent plus longtemps, plus de chances de vente.', effect: { customerWaitTime: 10 }, bought: false, studioX: 100, studioY: studioCanvas.height - 120, width: 150, height: 80, type: 'sofa'}
@@ -730,8 +732,9 @@
          */
         function initGame() {
             // Configure le canvas pour le dessin
-            studioCanvas.width = studioCanvas.offsetWidth;
-            studioCanvas.height = studioCanvas.offsetHeight;
+            // Les dimensions du canvas sont maintenant définies dans le HTML
+            // studioCanvas.width = studioCanvas.offsetWidth; // Supprimé
+            // studioCanvas.height = studioCanvas.offsetHeight; // Supprimé
             clearCanvas(); // Efface la zone de dessin initiale
 
             // Écouteurs d'événements pour le dessin
@@ -844,9 +847,10 @@
             let baseQuality = (pixelDensity * 70) + (player.fame * 0.5); // Max 70 pour densité, plus renommée
 
             // Bonus des améliorations
-            if (player.upgrades.find(u => u.id === 'easel')) {
-                baseQuality += 10; // Bonus de qualité pour le chevalet amélioré
-            }
+            // L'easel n'est plus un objet achetable, mais on peut imaginer des bonus de qualité liés à d'autres upgrades
+            // if (player.upgrades.find(u => u.id === 'easel')) {
+            //     baseQuality += 10; // Bonus de qualité pour le chevalet amélioré
+            // }
             if (player.upgrades.find(u => u.id === 'lights')) {
                 baseQuality += 5; // Bonus de qualité pour l'éclairage
             }
@@ -1079,14 +1083,14 @@
 
         // --- Tutoriel ---
         const tutorialSteps = [
-            { message: `Bonjour, ${player.name} ! Bienvenue dans votre nouveau salon d'artiste. Je suis votre guide.`, npcX: 100, npcY: 200 },
-            { message: "C'est ici que vous allez créer vos chefs-d'œuvre. Utilisez le pinceau et la palette de couleurs en haut pour dessiner sur le chevalet.", npcX: 550, npcY: 200 },
-            { message: "Une fois satisfait, cliquez sur 'Terminer l'œuvre'. Elle apparaîtra dans votre galerie en bas.", npcX: 550, npcY: 200 },
-            { message: "Des clients viendront visiter votre salon. Vous pourrez leur proposer vos œuvres à la vente.", npcX: 100, npcY: 200 },
+            { message: `Bonjour, ${player.name} ! Bienvenue dans votre nouveau salon d'artiste. Je suis votre guide.`, npcX: 100, npcY: studioCanvas.height / 2 - 50 },
+            { message: "C'est ici que vous allez créer vos chefs-d'œuvre. Utilisez le pinceau et la palette de couleurs en haut pour dessiner sur le chevalet.", npcX: 700, npcY: studioCanvas.height / 2 - 50 },
+            { message: "Une fois satisfait, cliquez sur 'Terminer l'œuvre'. Elle apparaîtra dans votre galerie en bas.", npcX: 700, npcY: studioCanvas.height / 2 - 50 },
+            { message: "Des clients viendront visiter votre salon. Vous pourrez leur proposer vos œuvres à la vente.", npcX: 100, npcY: studioCanvas.height / 2 - 50 },
             { message: "Gardez un œil sur votre Argent, votre Réputation et votre Renommée en haut de l'écran. La renommée attire de meilleurs clients !", npcX: 300, npcY: 50 },
             { message: "N'oubliez pas de visiter la Boutique d'Améliorations. Vous pouvez y acheter des objets pour embellir votre studio et améliorer vos compétences.", npcX: 300, npcY: 50 },
             { message: "Et attention au loyer ! Il est dû tous les 30 jours. Vendez vos œuvres pour ne pas vous retrouver sans le sou.", npcX: 300, npcY: 50 },
-            { message: "Maintenant, à vous de jouer, ${player.name} ! Bonne chance dans votre carrière artistique !", npcX: 100, npcY: 200, final: true }
+            { message: "Maintenant, à vous de jouer, ${player.name} ! Bonne chance dans votre carrière artistique !", npcX: 100, npcY: studioCanvas.height / 2 - 50, final: true }
         ];
 
         function startTutorial() {
