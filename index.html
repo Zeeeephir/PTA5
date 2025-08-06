@@ -33,14 +33,24 @@
             flex-direction: column;
             gap: 20px;
         }
-        canvas {
+        /* Styles pour le wrapper du canvas pour maintenir le ratio d'aspect */
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1000px; /* Limite la largeur maximale du jeu */
+            padding-bottom: 60%; /* 600 / 1000 = 0.6 = 60% pour maintenir le ratio 1000x600 */
+            height: 0; /* Essentiel pour le padding-bottom hack */
+            overflow: hidden; /* Cache tout ce qui dépasse du wrapper */
+            border-radius: 10px; /* Bords arrondis pour correspondre au style */
             border: 2px solid #cbd5e1; /* Bordure subtile */
-            background-color: #ffffff; /* Blanc pour le dessin */
-            border-radius: 10px;
-            width: 100%; /* Rendre le canvas responsif */
-            max-width: 1000px; /* Limite la largeur maximale pour éviter l'étirement excessif */
-            height: auto; /* Maintient le ratio d'aspect */
-            aspect-ratio: 1000 / 600; /* Définit explicitement le ratio d'aspect pour 1000x600 */
+            background-color: #ffffff; /* Fond blanc */
+        }
+        .canvas-wrapper canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             image-rendering: pixelated; /* Rendu pixelisé pour le canvas */
             cursor: crosshair;
         }
@@ -273,7 +283,7 @@
         </div>
 
         <!-- Zone principale du studio et de dessin -->
-        <div class="relative drawing-area bg-gray-100 p-4 rounded-lg shadow-inner">
+        <div class="relative drawing-area bg-gray-100 p-4 rounded-lg shadow-inner max-w-[1032px] mx-auto">
             <div class="flex flex-wrap gap-2 mb-4 items-center">
                 <label for="brushSize" class="font-semibold text-gray-700 pixel-font">Taille:</label>
                 <input type="range" id="brushSize" min="1" max="20" value="5" class="w-24">
@@ -283,7 +293,9 @@
                     Effacer
                 </button>
             </div>
-            <canvas id="studioCanvas" width="1000" height="600"></canvas>
+            <div class="canvas-wrapper relative w-full max-w-[1000px] mx-auto" style="padding-bottom: 60%; height: 0; overflow: hidden;">
+                <canvas id="studioCanvas" width="1000" height="600" class="absolute inset-0 w-full h-full"></canvas>
+            </div>
             <div class="flex justify-center mt-4">
                 <input type="text" id="artNameInput" placeholder="Nom de l'œuvre (optionnel)" class="p-2 border border-gray-300 rounded-md w-full max-w-sm mr-2 pixel-font">
                 <button id="createArtBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg pixel-font">
@@ -733,8 +745,6 @@
         function initGame() {
             // Configure le canvas pour le dessin
             // Les dimensions du canvas sont maintenant définies dans le HTML
-            // studioCanvas.width = studioCanvas.offsetWidth; // Supprimé
-            // studioCanvas.height = studioCanvas.offsetHeight; // Supprimé
             clearCanvas(); // Efface la zone de dessin initiale
 
             // Écouteurs d'événements pour le dessin
@@ -847,10 +857,6 @@
             let baseQuality = (pixelDensity * 70) + (player.fame * 0.5); // Max 70 pour densité, plus renommée
 
             // Bonus des améliorations
-            // L'easel n'est plus un objet achetable, mais on peut imaginer des bonus de qualité liés à d'autres upgrades
-            // if (player.upgrades.find(u => u.id === 'easel')) {
-            //     baseQuality += 10; // Bonus de qualité pour le chevalet amélioré
-            // }
             if (player.upgrades.find(u => u.id === 'lights')) {
                 baseQuality += 5; // Bonus de qualité pour l'éclairage
             }
