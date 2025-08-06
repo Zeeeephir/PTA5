@@ -3,1259 +3,1240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Monde Ouvert - Simulation</title>
+    <title>Passpartout: Mon Salon Pixel Art</title>
+    <!-- Tailwind CSS pour un style moderne et responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Styles globaux pour le corps */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         body {
-            margin: 0;
-            overflow: hidden; /* Cache les barres de défilement */
-            font-family: 'Inter', sans-serif; /* Utilise la police Inter */
-            background-color: #1a1a2e; /* Couleur de fond sombre */
-            color: #e0e0e0; /* Couleur de texte claire */
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Couleur de fond douce */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-        }
-
-        /* Conteneur principal du jeu */
-        #game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #000;
-        }
-
-        /* Style du canvas Three.js */
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Styles de base pour tous les menus */
-        .menu-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85); /* Fond semi-transparent */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000; /* Assure que les menus sont au-dessus du canvas */
-            backdrop-filter: blur(5px); /* Effet de flou sur l'arrière-plan */
-            -webkit-backdrop-filter: blur(5px); /* Compatibilité Safari */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .menu-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .menu-box {
-            background-color: #2a2a4a; /* Couleur de fond du menu */
-            padding: 40px;
-            border-radius: 15px; /* Coins arrondis */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Ombre portée */
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-            transform: translateY(20px);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .menu-overlay.active .menu-box {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .menu-box h1, .menu-box h2 {
-            color: #8a8aff; /* Couleur des titres */
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 0 0 10px rgba(138, 138, 255, 0.5);
-        }
-
-        .menu-box h2 {
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
-
-        .menu-options button, .menu-options .key-binding-item button {
-            background: linear-gradient(145deg, #6a6aff, #4a4aff); /* Dégradé de fond pour les boutons */
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            margin: 10px;
-            border-radius: 10px; /* Coins arrondis */
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            width: calc(100% - 20px); /* Ajuste la largeur pour le padding */
-            max-width: 300px; /* Largeur maximale pour les boutons */
-        }
-
-        .menu-options button:hover, .menu-options .key-binding-item button:hover {
-            background: linear-gradient(145deg, #4a4aff, #6a6aff);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .menu-options button:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Styles spécifiques au menu de configuration des touches */
-        .key-binding-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
-            max-height: 400px; /* Hauteur maximale pour le défilement */
-            overflow-y: auto; /* Permet le défilement */
-            padding-right: 10px; /* Espace pour la barre de défilement */
-        }
-
-        .key-binding-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .key-binding-list::-webkit-scrollbar-track {
-            background: #3a3a5a;
-            border-radius: 10px;
-        }
-
-        .key-binding-list::-webkit-scrollbar-thumb {
-            background: #8a8aff;
-            border-radius: 10px;
-        }
-
-        .key-binding-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #3a3a5a;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .key-binding-item span {
-            font-size: 1.1em;
-            color: #c0c0e0;
-            flex-grow: 1;
-            text-align: left;
-        }
-
-        .key-binding-item button {
-            padding: 8px 15px;
             margin: 0;
-            font-size: 1em;
-            max-width: 120px;
-            background: linear-gradient(145deg, #4a4aff, #2a2aff);
-        }
-
-        .key-binding-item button:hover {
-            background: linear-gradient(145deg, #2a2aff, #4a4aff);
-        }
-
-        /* Styles pour les messages d'état (par exemple, pour le remappage des touches) */
-        #status-message {
-            position: absolute;
-            bottom: 20px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            font-size: 1.1em;
-            z-index: 1001;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        #status-message.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Styles pour l'HUD (Head-Up Display) */
-        #hud-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999;
-            pointer-events: none; /* Permet les clics à travers l'HUD */
-            display: none; /* Caché par défaut */
             padding: 20px;
+            box-sizing: border-box;
         }
-
-        #hud-overlay.active {
-            display: block;
+        .pixel-font {
+            font-family: 'Press Start 2P', cursive;
         }
-
-        .hud-element {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 10px 15px;
-            border-radius: 8px;
-            color: white;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
+        .game-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1400px; /* Plus large pour le canvas et les éléments */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-
-        #inventory-display {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
+        canvas {
+            border: 2px solid #cbd5e1; /* Bordure subtile */
+            background-color: #ffffff; /* Blanc pour le dessin */
+            border-radius: 10px;
+            width: 100%; /* Rendre le canvas responsif */
+            height: 500px; /* Plus grand pour le studio */
+            image-rendering: pixelated; /* Rendu pixelisé pour le canvas */
+            cursor: crosshair;
+        }
+        .button-group button, .tool-button, .shop-item button, .char-option button {
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6); /* Dégradé de couleur */
+        }
+        .button-group button:hover, .tool-button:hover, .shop-item button:hover, .char-option button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            background-image: linear-gradient(to right, #4f46e5, #7c3aed); /* Dégradé plus prononcé au survol */
+        }
+        .log-box {
             max-height: 150px;
             overflow-y: auto;
-            width: 200px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.9em;
+            color: #475569;
+        }
+        .log-box p {
+            margin-bottom: 5px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-item span:first-child {
+            font-weight: 600;
+            color: #334155;
+        }
+        .stat-item span:last-child {
+            color: #1e293b;
+        }
+        /* Style pour les messages d'erreur/information */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .message-box.show {
+            opacity: 1;
+        }
+        /* Style pour les cartes d'art dans la galerie */
+        .art-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+        .art-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: contain; /* Pour ne pas déformer l'image */
+            background-color: #f8fafc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            image-rendering: pixelated; /* Rendu pixelisé pour les images d'art */
+        }
+        .customer-dialog {
+            background-color: #f0f9ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            position: absolute; /* Positionné par rapport au conteneur du canvas */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10; /* Au-dessus du canvas */
+            min-width: 300px;
+        }
+        .customer-dialog p {
+            font-size: 1.1em;
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        .customer-dialog button {
+            background-color: #2563eb;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .customer-dialog button:hover {
+            background-color: #1d4ed8;
+        }
+        .shop-item {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .shop-item h3 {
+            font-weight: bold;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+        .shop-item p {
+            font-size: 0.9em;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+        .shop-item button {
+            background-color: #10b981; /* Vert pour acheter */
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .shop-item button:hover {
+            background-color: #059669;
         }
 
-        #inventory-display ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #inventory-display li {
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        #inventory-display li:last-child {
-            border-bottom: none;
-        }
-
-        /* Message box pour remplacer alert() */
-        #message-box-overlay {
+        /* Styles pour l'écran de démarrage */
+        #startScreen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: #2d3748; /* Gris foncé */
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            color: white;
+            text-align: center;
         }
-
-        #message-box-overlay.active {
-            opacity: 1;
-            visibility: visible;
+        #startScreen h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #fcd34d; /* Jaune vif */
         }
-
-        #message-box {
-            background-color: #2a2a4a;
+        #characterCreation {
+            background-color: #4a5568;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
             width: 90%;
-            max-width: 400px;
-            transform: translateY(20px);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
         }
-
-        #message-box-overlay.active #message-box {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        #message-box p {
-            font-size: 1.2em;
-            margin-bottom: 20px;
-            color: #e0e0e0;
-        }
-
-        #message-box button {
-            background: linear-gradient(145deg, #6a6aff, #4a4aff);
-            color: white;
-            border: none;
-            padding: 10px 20px;
+        .char-option {
+            background-color: #6366f1;
+            padding: 10px;
             border-radius: 8px;
-            font-size: 1em;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            border: 2px solid transparent;
         }
-
-        #message-box button:hover {
-            background: linear-gradient(145deg, #4a4aff, #6a6aff);
-            transform: translateY(-2px);
-            box-shadow: 0 7px 12px rgba(0, 0, 0, 0.4);
+        .char-option.selected {
+            border-color: #fcd34d;
+            box-shadow: 0 0 0 3px #fcd34d;
+        }
+        .char-preview-canvas {
+            background-color: #333;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            image-rendering: pixelated;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <!-- Le canvas Three.js sera inséré ici par JavaScript -->
+    <!-- Écran de Démarrage et Création de Personnage -->
+    <div id="startScreen" class="pixel-font">
+        <div id="characterCreation">
+            <h1 class="text-4xl mb-6">Le Chemin de l'Artiste Pixel</h1>
+            <p class="text-xl mb-4">Choisissez votre artiste et donnez-lui un nom !</p>
+            <input type="text" id="artistNameInput" placeholder="Votre nom d'artiste" class="p-3 rounded-md text-gray-800 w-full mb-6 text-center" maxlength="15">
 
-        <!-- HUD (Head-Up Display) -->
-        <div id="hud-overlay">
-            <div class="hud-element">Heure: <span id="hud-time">00:00</span></div>
-            <div class="hud-element">Météo: <span id="hud-weather">Ensoleillé</span></div>
-            <div class="hud-element">Vitesse: <span id="hud-speed">0 km/h</span></div>
-            <div class="hud-element" id="interaction-prompt" style="display:none;">Appuyez sur <span id="interaction-key">F</span> pour interagir</div>
-            <div id="inventory-display" class="hud-element">
-                <h3>Inventaire</h3>
-                <ul id="inventory-list">
-                    <!-- Les éléments de l'inventaire seront ajoutés ici -->
-                </ul>
-            </div>
-        </div>
-
-        <!-- Menu Principal -->
-        <div id="main-menu" class="menu-overlay active">
-            <div class="menu-box">
-                <h1>GRAND MONDE OUVERT</h1>
-                <div class="menu-options">
-                    <button id="new-game-btn">Nouvelle Partie</button>
-                    <button id="load-game-btn">Charger</button>
-                    <button id="settings-btn">Paramètres</button>
-                    <button id="quit-game-btn">Quitter</button>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="char-option p-4 rounded-lg flex flex-col items-center" data-char="0">
+                    <canvas class="char-preview-canvas" width="64" height="64"></canvas>
+                    <span class="mt-2">Artiste Classique</span>
+                </div>
+                <div class="char-option p-4 rounded-lg flex flex-col items-center" data-char="1">
+                    <canvas class="char-preview-canvas" width="64" height="64"></canvas>
+                    <span class="mt-2">Artiste Moderne</span>
                 </div>
             </div>
+            <button id="startGameBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl">
+                Commencer l'aventure !
+            </button>
         </div>
-
-        <!-- Menu Paramètres -->
-        <div id="settings-menu" class="menu-overlay">
-            <div class="menu-box">
-                <h2>Paramètres</h2>
-                <div class="menu-options">
-                    <button id="audio-settings-btn">Audio</button>
-                    <button id="graphics-settings-btn">Graphismes</button>
-                    <button id="key-bindings-btn">Configuration des Touches</button>
-                    <button id="back-to-main-menu-btn">Retour</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Menu Audio -->
-        <div id="audio-settings-menu" class="menu-overlay">
-            <div class="menu-box">
-                <h2>Paramètres Audio</h2>
-                <div class="menu-options">
-                    <p>Volume Général: <input type="range" min="0" max="100" value="70" id="master-volume"></p>
-                    <p>Volume Musique: <input type="range" min="0" max="100" value="50" id="music-volume"></p>
-                    <p>Volume Effets: <input type="range" min="0" max="100" value="80" id="sfx-volume"></p>
-                    <button id="back-to-settings-from-audio-btn">Retour</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Menu Graphismes -->
-        <div id="graphics-settings-menu" class="menu-overlay">
-            <div class="menu-box">
-                <h2>Paramètres Graphiques</h2>
-                <div class="menu-options">
-                    <p>Qualité des Textures:
-                        <select id="texture-quality">
-                            <option value="low">Basse</option>
-                            <option value="medium" selected>Moyenne</option>
-                            <option value="high">Haute</option>
-                        </select>
-                    </p>
-                    <p>Qualité des Ombres:
-                        <select id="shadow-quality">
-                            <option value="off">Désactivé</option>
-                            <option value="low">Basse</option>
-                            <option value="medium" selected>Moyenne</option>
-                            <option value="high">Haute</option>
-                        </select>
-                    </p>
-                    <button id="back-to-settings-from-graphics-btn">Retour</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Menu Configuration des Touches -->
-        <div id="key-bindings-menu" class="menu-overlay">
-            <div class="menu-box">
-                <h2>Configuration des Touches</h2>
-                <div class="key-binding-list" id="key-binding-list">
-                    <!-- Les liaisons de touches seront générées ici par JS -->
-                </div>
-                <button id="back-to-settings-from-keys-btn">Retour</button>
-            </div>
-        </div>
-
-        <!-- Message Box (pour remplacer alert()) -->
-        <div id="message-box-overlay">
-            <div id="message-box">
-                <p id="message-box-text"></p>
-                <button id="message-box-ok-btn">OK</button>
-            </div>
-        </div>
-
-        <!-- Message d'état pour le remappage des touches -->
-        <div id="status-message"></div>
     </div>
 
-    <!-- Importation des bibliothèques Three.js et Cannon.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <div class="game-container hidden">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 pixel-font">Mon Salon Pixel Art</h1>
 
-    <script type="module">
-        // --- Variables Globales pour le Jeu ---
-        let scene, camera, renderer;
-        let world, playerBody, playerMesh, vehicleBody, vehicleMesh;
-        let gameRunning = false;
-        let currentMenu = 'main-menu';
-        let keysPressed = {};
-        let playerSpeed = 5;
-        let playerJumpForce = 10;
-        let vehicleSpeed = 10;
-        let inVehicle = false;
-        let interactionTarget = null; // L'objet avec lequel on peut interagir
-        let raycaster; // Pour les interactions
-        let mouse = new THREE.Vector2(); // Pour la souris
-        let isDragging = false;
-        let previousMousePosition = { x: 0, y: 0 };
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="stat-item bg-blue-50 p-4 rounded-lg shadow-sm">
+                <span class="text-blue-700">&#x1F4B0; Argent:</span>
+                <span id="moneyDisplay" class="text-blue-900 font-semibold pixel-font">0</span>
+            </div>
+            <div class="stat-item bg-purple-50 p-4 rounded-lg shadow-sm">
+                <span class="text-purple-700">&#x1F3C6; Réputation:</span>
+                <span id="reputationDisplay" class="text-purple-900 font-semibold pixel-font">0</span>
+            </div>
+            <div class="stat-item bg-green-50 p-4 rounded-lg shadow-sm">
+                <span class="text-green-700">&#x1F4BC; Renommée:</span>
+                <span id="fameDisplay" class="text-green-900 font-semibold pixel-font">0</span>
+            </div>
+            <div class="stat-item bg-yellow-50 p-4 rounded-lg shadow-sm">
+                <span class="text-yellow-700">&#x1F3A8; Statut:</span>
+                <span id="statusDisplay" class="text-yellow-900 font-semibold pixel-font">Débutant</span>
+            </div>
+        </div>
 
-        // Cycle jour/nuit
-        let sunLight, ambientLight;
-        let gameTime = 0; // Temps de jeu en secondes (0-86400 pour un cycle de 24h)
-        const DAY_DURATION_SECONDS = 60; // Durée d'un cycle jour/nuit complet en secondes réelles (pour la simulation)
+        <!-- Zone principale du studio et de dessin -->
+        <div class="relative drawing-area bg-gray-100 p-4 rounded-lg shadow-inner">
+            <div class="flex flex-wrap gap-2 mb-4 items-center">
+                <label for="brushSize" class="font-semibold text-gray-700 pixel-font">Taille:</label>
+                <input type="range" id="brushSize" min="1" max="20" value="5" class="w-24">
+                <label for="colorPicker" class="font-semibold text-gray-700 ml-4 pixel-font">Couleur:</label>
+                <input type="color" id="colorPicker" value="#000000">
+                <button id="clearCanvasBtn" class="tool-button bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg ml-auto pixel-font">
+                    Effacer
+                </button>
+            </div>
+            <canvas id="studioCanvas"></canvas>
+            <div class="flex justify-center mt-4">
+                <input type="text" id="artNameInput" placeholder="Nom de l'œuvre (optionnel)" class="p-2 border border-gray-300 rounded-md w-full max-w-sm mr-2 pixel-font">
+                <button id="createArtBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg pixel-font">
+                    Terminer l'œuvre
+                </button>
+            </div>
 
-        // Météo
-        let weather = 'sunny';
-        let rainParticles = [];
-        let rainParticleSystem;
-        const WEATHER_CHANGE_INTERVAL = 30; // Changer la météo toutes les 30 secondes (pour la simulation)
-        let lastWeatherChangeTime = 0;
+            <!-- Zone d'interaction client (positionnée absolument sur le canvas) -->
+            <div id="customerInteraction" class="customer-dialog hidden pixel-font">
+                <p id="customerMessage"></p>
+                <div class="flex justify-center gap-4 mt-4">
+                    <button id="acceptOfferBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Accepter
+                    </button>
+                    <button id="rejectOfferBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Refuser
+                    </button>
+                </div>
+            </div>
 
-        // Inventaire
-        let inventory = ['Clé de voiture', 'Radio'];
-        const MAX_INVENTORY_SIZE = 5;
+            <!-- Boîte de dialogue du Tuto -->
+            <div id="tutorialDialog" class="customer-dialog hidden pixel-font">
+                <p id="tutorialMessage"></p>
+                <button id="nextTutorialBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg mt-4">
+                    Suivant
+                </button>
+            </div>
+        </div>
 
-        // Configuration des touches par défaut
-        let keyBindings = {
-            'moveForward': 'Z',
-            'moveBackward': 'S',
-            'moveLeft': 'Q',
-            'moveRight': 'D',
-            'jump': 'Space',
-            'interact': 'F',
-            'inventory': 'I',
-            'toggleMenu': 'Escape'
+        <!-- Boutique d'améliorations -->
+        <h2 class="text-xl font-semibold text-gray-700 mt-6 mb-3 pixel-font">Boutique d'Améliorations:</h2>
+        <div id="shopDisplay" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Les articles de la boutique seront affichés ici -->
+        </div>
+
+        <h2 class="text-xl font-semibold text-gray-700 mt-6 mb-3 pixel-font">Votre Galerie:</h2>
+        <div id="galleryDisplay" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Les œuvres d'art seront affichées ici -->
+            <p class="text-gray-500 col-span-full text-center pixel-font" id="noArtMessage">Votre galerie est vide. Créez une œuvre !</p>
+        </div>
+
+        <h2 class="text-xl font-semibold text-gray-700 mt-6 mb-3 pixel-font">Journal de Bord:</h2>
+        <div id="logBox" class="log-box pixel-font">
+            <!-- Les messages du jeu apparaîtront ici -->
+        </div>
+    </div>
+
+    <!-- Message Box pour les notifications -->
+    <div id="messageBox" class="message-box pixel-font"></div>
+
+    <script>
+        // Initialisation du jeu après le chargement complet de la fenêtre
+        window.onload = function() {
+            setupStartScreen();
         };
 
-        let remappingKey = null; // Stocke la fonction de rappel pour le remappage
+        // --- Variables Globales du Jeu ---
+        const startScreen = document.getElementById('startScreen');
+        const gameContainer = document.querySelector('.game-container');
+        const studioCanvas = document.getElementById('studioCanvas');
+        const ctx = studioCanvas.getContext('2d');
 
-        // Éléments du HUD
-        const hudTimeElement = document.getElementById('hud-time');
-        const hudWeatherElement = document.getElementById('hud-weather');
-        const hudSpeedElement = document.getElementById('hud-speed');
-        const interactionPrompt = document.getElementById('interaction-prompt');
-        const interactionKeyElement = document.getElementById('interaction-key');
-        const inventoryListElement = document.getElementById('inventory-list');
-        const hudOverlay = document.getElementById('hud-overlay');
+        const moneyDisplay = document.getElementById('moneyDisplay');
+        const reputationDisplay = document.getElementById('reputationDisplay');
+        const fameDisplay = document.getElementById('fameDisplay');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const galleryDisplay = document.getElementById('galleryDisplay');
+        const noArtMessage = document.getElementById('noArtMessage');
+        const logBox = document.getElementById('logBox');
+        const messageBox = document.getElementById('messageBox');
 
-        // Éléments de l'interface utilisateur
-        const mainMenu = document.getElementById('main-menu');
-        const settingsMenu = document.getElementById('settings-menu');
-        const audioSettingsMenu = document.getElementById('audio-settings-menu');
-        const graphicsSettingsMenu = document.getElementById('graphics-settings-menu');
-        const keyBindingsMenu = document.getElementById('key-bindings-menu');
-        const keyBindingListDiv = document.getElementById('key-binding-list');
-        const statusMessage = document.getElementById('status-message');
+        const brushSizeInput = document.getElementById('brushSize');
+        const colorPicker = document.getElementById('colorPicker');
+        const clearCanvasBtn = document.getElementById('clearCanvasBtn');
+        const artNameInput = document.getElementById('artNameInput');
+        const createArtBtn = document.getElementById('createArtBtn');
 
-        // Message Box
-        const messageBoxOverlay = document.getElementById('message-box-overlay');
-        const messageBoxText = document.getElementById('message-box-text');
-        const messageBoxOkBtn = document.getElementById('message-box-ok-btn');
+        const customerInteraction = document.getElementById('customerInteraction');
+        const customerMessage = document.getElementById('customerMessage');
+        const acceptOfferBtn = document.getElementById('acceptOfferBtn');
+        const rejectOfferBtn = document.getElementById('rejectOfferBtn');
+        const shopDisplay = document.getElementById('shopDisplay');
 
-        /**
-         * @function showMessageBox
-         * @description Affiche une boîte de message personnalisée.
-         * @param {string} message Le texte à afficher dans la boîte de message.
-         */
-        function showMessageBox(message) {
-            messageBoxText.textContent = message;
-            messageBoxOverlay.classList.add('active');
-            messageBoxOkBtn.onclick = () => {
-                messageBoxOverlay.classList.remove('active');
-            };
-        }
+        const tutorialDialog = document.getElementById('tutorialDialog');
+        const tutorialMessage = document.getElementById('tutorialMessage');
+        const nextTutorialBtn = document.getElementById('nextTutorialBtn');
 
-        /**
-         * @function showStatusMessage
-         * @description Affiche un message d'état temporaire.
-         * @param {string} message Le message à afficher.
-         * @param {number} duration La durée d'affichage en millisecondes.
-         */
-        function showStatusMessage(message, duration = 2000) {
-            statusMessage.textContent = message;
-            statusMessage.classList.add('active');
-            setTimeout(() => {
-                statusMessage.classList.remove('active');
-            }, duration);
-        }
+        // État du joueur
+        let player = {
+            name: "Artiste",
+            character: null, // L'objet du personnage pixelisé choisi
+            money: 100, // Argent de départ
+            reputation: 0,
+            fame: 1, // Renommée, influence la qualité de base et les clients
+            status: "Débutant", // Statut de l'artiste
+            inventory: [], // Œuvres d'art créées
+            artIdCounter: 0, // Compteur pour les IDs uniques des œuvres
+            rentDueIn: 30, // Jours avant le paiement du loyer
+            rentAmount: 20, // Montant du loyer
+            upgrades: [] // Améliorations achetées
+        };
 
-        /**
-         * @function initGame
-         * @description Initialise le moteur de rendu Three.js et la scène.
-         */
-        function initGame() {
-            // Création de la scène
-            scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x87ceeb, 100, 500); // Brouillard pour simuler l'atmosphère
+        // État du dessin
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let brushSize = parseInt(brushSizeInput.value);
+        let currentColor = colorPicker.value;
+        let drawnPixels = new Set(); // Pour estimer la "complexité" de l'œuvre
+        let currentDrawingData = null; // Pour stocker l'image du dessin en cours
 
-            // Création de la caméra
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 5, 10); // Position initiale de la caméra
+        // Zone de dessin sur le canvas principal (simule l'emplacement de l'easel)
+        const artDrawingArea = {
+            x: 500, // Position X sur le canvas
+            y: 100, // Position Y sur le canvas
+            width: 300,
+            height: 300
+        };
 
-            // Création du renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.shadowMap.enabled = true; // Active les ombres
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Type d'ombre douce
-            document.getElementById('game-container').appendChild(renderer.domElement);
+        // État du client
+        let customers = []; // Liste des clients dans le studio
+        let currentCustomerInteraction = null; // Le client actuellement en interaction
+        let currentArtForSale = null; // L'œuvre proposée au client actuel
+        let currentOffer = 0;
 
-            // Lumières
-            sunLight = new THREE.DirectionalLight(0xffffff, 1);
-            sunLight.position.set(50, 50, 50);
-            sunLight.castShadow = true;
-            sunLight.shadow.mapSize.width = 2048;
-            sunLight.shadow.mapSize.height = 2048;
-            sunLight.shadow.camera.near = 0.5;
-            sunLight.shadow.camera.far = 100;
-            sunLight.shadow.camera.left = -50;
-            sunLight.shadow.camera.right = 50;
-            sunLight.shadow.camera.top = 50;
-            sunLight.shadow.camera.bottom = -50;
-            scene.add(sunLight);
+        // État du tutoriel
+        let tutorialActive = false;
+        let tutorialStep = 0;
+        let tutorialNPC = null; // Le PNJ du tutoriel
 
-            ambientLight = new THREE.AmbientLight(0x404040, 0.5);
-            scene.add(ambientLight);
-
-            // Raycaster pour les interactions
-            raycaster = new THREE.Raycaster();
-
-            // Gestion du redimensionnement de la fenêtre
-            window.addEventListener('resize', onWindowResize, false);
-            document.addEventListener('keydown', onKeyDown, false);
-            document.addEventListener('keyup', onKeyUp, false);
-            document.addEventListener('mousemove', onMouseMove, false);
-            document.addEventListener('mousedown', onMouseDown, false);
-            document.addEventListener('mouseup', onMouseUp, false);
-        }
-
-        /**
-         * @function initPhysics
-         * @description Initialise le monde physique Cannon.js.
-         */
-        function initPhysics() {
-            world = new CANNON.World();
-            world.gravity.set(0, -9.82, 0); // Gravité terrestre
-            world.broadphase = new CANNON.SAPBroadphase(world); // Améliore les performances de collision
-            world.solver.iterations = 10; // Nombre d'itérations du solveur pour la précision
-
-            // Création du sol
-            const groundShape = new CANNON.Plane();
-            const groundBody = new CANNON.Body({ mass: 0 }); // Masse 0 = statique
-            groundBody.addShape(groundShape);
-            groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2); // Rotation pour que le plan soit horizontal
-            world.addBody(groundBody);
-
-            // Création du joueur (capsule pour une meilleure stabilité)
-            const playerRadius = 0.5;
-            const playerHeight = 1.8;
-            const playerShape = new CANNON.Cylinder(playerRadius, playerRadius, playerHeight, 8);
-            playerBody = new CANNON.Body({ mass: 70, position: new CANNON.Vec3(0, playerHeight / 2 + 0.5, 0) });
-            playerBody.addShape(playerShape);
-            playerBody.fixedRotation = true; // Empêche le joueur de basculer
-            world.addBody(playerBody);
-
-            // Mesh visuel du joueur (pour Three.js)
-            const playerGeometry = new THREE.CylinderGeometry(playerRadius, playerRadius, playerHeight, 8);
-            const playerMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-            playerMesh = new THREE.Mesh(playerGeometry, playerMaterial);
-            playerMesh.castShadow = true;
-            playerMesh.receiveShadow = true;
-            scene.add(playerMesh);
-
-            // Création d'un véhicule simple (boîte)
-            const vehicleWidth = 2;
-            const vehicleHeight = 1.5;
-            const vehicleDepth = 4;
-            const vehicleShape = new CANNON.Box(new CANNON.Vec3(vehicleWidth / 2, vehicleHeight / 2, vehicleDepth / 2));
-            vehicleBody = new CANNON.Body({ mass: 1000, position: new CANNON.Vec3(5, vehicleHeight / 2 + 0.5, 0) });
-            vehicleBody.addShape(vehicleShape);
-            world.addBody(vehicleBody);
-
-            // Mesh visuel du véhicule
-            const vehicleGeometry = new THREE.BoxGeometry(vehicleWidth, vehicleHeight, vehicleDepth);
-            const vehicleMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-            vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
-            vehicleMesh.castShadow = true;
-            vehicleMesh.receiveShadow = true;
-            scene.add(vehicleMesh);
-
-            // Création de quelques objets dans le monde
-            createWorldObjects();
-        }
-
-        /**
-         * @function createWorldObjects
-         * @description Crée des objets statiques et interactifs dans le monde.
-         */
-        function createWorldObjects() {
-            // Sol
-            const groundGeometry = new THREE.PlaneGeometry(200, 200);
-            const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
-            const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-            groundMesh.rotation.x = -Math.PI / 2;
-            groundMesh.receiveShadow = true;
-            scene.add(groundMesh);
-
-            // Un bâtiment simple
-            const buildingGeometry = new THREE.BoxGeometry(10, 20, 10);
-            const buildingMaterial = new THREE.MeshStandardMaterial({ color: 0x777777 });
-            const buildingMesh = new THREE.Mesh(buildingGeometry, buildingMaterial);
-            buildingMesh.position.set(20, 10, -15);
-            buildingMesh.castShadow = true;
-            buildingMesh.receiveShadow = true;
-            scene.add(buildingMesh);
-
-            const buildingBody = new CANNON.Body({ mass: 0, position: new CANNON.Vec3(20, 10, -15) });
-            buildingBody.addShape(new CANNON.Box(new CANNON.Vec3(5, 10, 5)));
-            world.addBody(buildingBody);
-
-            // Une porte (objet interactif)
-            const doorGeometry = new THREE.BoxGeometry(1.5, 3, 0.2);
-            const doorMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
-            const doorMesh = new THREE.Mesh(doorGeometry, doorMaterial);
-            doorMesh.position.set(15, 1.5, -15);
-            doorMesh.userData.isDoor = true; // Marque cet objet comme une porte
-            doorMesh.userData.isOpen = false;
-            doorMesh.castShadow = true;
-            scene.add(doorMesh);
-
-            const doorBody = new CANNON.Body({ mass: 0, position: new CANNON.Vec3(15, 1.5, -15) });
-            doorBody.addShape(new CANNON.Box(new CANNON.Vec3(0.75, 1.5, 0.1)));
-            world.addBody(doorBody);
-        }
-
-        /**
-         * @function initUI
-         * @description Initialise les écouteurs d'événements pour les boutons de l'interface utilisateur.
-         */
-        function initUI() {
-            // Boutons du menu principal
-            document.getElementById('new-game-btn').addEventListener('click', () => startGame());
-            document.getElementById('load-game-btn').addEventListener('click', () => showMessageBox('Fonctionnalité de chargement non implémentée.'));
-            document.getElementById('settings-btn').addEventListener('click', () => showMenu('settings-menu'));
-            document.getElementById('quit-game-btn').addEventListener('click', () => showMessageBox('Quitter le jeu... (Retour au menu principal)'));
-
-            // Boutons du menu paramètres
-            document.getElementById('audio-settings-btn').addEventListener('click', () => showMenu('audio-settings-menu'));
-            document.getElementById('graphics-settings-btn').addEventListener('click', () => showMenu('graphics-settings-menu'));
-            document.getElementById('key-bindings-btn').addEventListener('click', () => showMenu('key-bindings-menu'));
-            document.getElementById('back-to-main-menu-btn').addEventListener('click', () => showMenu('main-menu'));
-
-            // Boutons des sous-menus
-            document.getElementById('back-to-settings-from-audio-btn').addEventListener('click', () => showMenu('settings-menu'));
-            document.getElementById('back-to-settings-from-graphics-btn').addEventListener('click', () => showMenu('settings-menu'));
-            document.getElementById('back-to-settings-from-keys-btn').addEventListener('click', () => showMenu('settings-menu'));
-
-            // Écouteurs pour les sliders et selects des paramètres
-            document.getElementById('master-volume').addEventListener('input', (e) => console.log('Volume Général:', e.target.value));
-            document.getElementById('music-volume').addEventListener('input', (e) => console.log('Volume Musique:', e.target.value));
-            document.getElementById('sfx-volume').addEventListener('input', (e) => console.log('Volume Effets:', e.target.value));
-            document.getElementById('texture-quality').addEventListener('change', (e) => console.log('Qualité Textures:', e.target.value));
-            document.getElementById('shadow-quality').addEventListener('change', (e) => console.log('Qualité Ombres:', e.target.value));
-
-            updateKeyBindingsDisplay(); // Affiche les touches au démarrage
-            updateInventoryDisplay(); // Affiche l'inventaire au démarrage
-        }
-
-        /**
-         * @function showMenu
-         * @description Affiche le menu spécifié et cache les autres.
-         * @param {string} menuId L'ID du menu à afficher.
-         */
-        function showMenu(menuId) {
-            const menus = document.querySelectorAll('.menu-overlay');
-            menus.forEach(menu => {
-                if (menu.id === menuId) {
-                    menu.classList.add('active');
-                } else {
-                    menu.classList.remove('active');
+        // Définitions des personnages pixel art
+        const pixelCharacters = [
+            {
+                name: "Artiste Classique",
+                colors: { body: '#e53e3e', head: '#f6e0b5', hair: '#8B4513' },
+                draw: function(ctx, x, y, size) {
+                    const s = size / 8; // Taille d'un pixel pour le personnage
+                    // Corps
+                    ctx.fillStyle = this.colors.body;
+                    ctx.fillRect(x + s*2, y + s*4, s*4, s*4);
+                    // Tête
+                    ctx.fillStyle = this.colors.head;
+                    ctx.fillRect(x + s*3, y + s*1, s*2, s*3);
+                    // Cheveux
+                    ctx.fillStyle = this.colors.hair;
+                    ctx.fillRect(x + s*2, y + s*0, s*4, s*2);
+                    // Bras
+                    ctx.fillStyle = this.colors.body;
+                    ctx.fillRect(x + s*1, y + s*5, s, s*2);
+                    ctx.fillRect(x + s*6, y + s*5, s, s*2);
                 }
-            });
-            currentMenu = menuId;
+            },
+            {
+                name: "Artiste Moderne",
+                colors: { body: '#4299e1', head: '#f6e0b5', hair: '#000000' },
+                draw: function(ctx, x, y, size) {
+                    const s = size / 8; // Taille d'un pixel pour le personnage
+                    // Corps
+                    ctx.fillStyle = this.colors.body;
+                    ctx.fillRect(x + s*2, y + s*4, s*4, s*4);
+                    // Tête
+                    ctx.fillStyle = this.colors.head;
+                    ctx.fillRect(x + s*2, y + s*1, s*4, s*3);
+                    // Cheveux (carrés)
+                    ctx.fillStyle = this.colors.hair;
+                    ctx.fillRect(x + s*2, y + s*0, s*4, s*2);
+                    // Lunettes
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(x + s*2, y + s*2, s, s);
+                    ctx.fillRect(x + s*5, y + s*2, s, s);
+                }
+            }
+        ];
 
-            // Pause le jeu si un menu est affiché (sauf le HUD)
-            gameRunning = (menuId === 'hud-overlay') || (menuId === null); // null pour quand aucun menu n'est affiché
-            if (gameRunning) {
-                hudOverlay.classList.add('active');
-                // Verrouille le pointeur pour le contrôle de la caméra
-                document.getElementById('game-container').requestPointerLock();
+        // Types de clients avec leurs préférences et tolérances
+        const customerTypes = [
+            { name: "Sceptique", minFame: 0, qualityPref: { min: 0, max: 40 }, priceTolerance: { min: 0.5, max: 0.8 }, messages: ["C'est... intéressant.", "Je ne suis pas sûr de comprendre.", "Combien pour ça ?"], colors: { body: '#a0aec0', head: '#f6e0b5' } },
+            { name: "Amateur d'art", minFame: 10, qualityPref: { min: 30, max: 70 }, priceTolerance: { min: 0.8, max: 1.2 }, messages: ["J'aime la couleur !", "C'est très expressif.", "Un prix juste, s'il vous plaît."], colors: { body: '#f6ad55', head: '#f6e0b5' } },
+            { name: "Collectionneur", minFame: 50, qualityPref: { min: 60, max: 100 }, priceTolerance: { min: 1.0, max: 1.5 }, messages: ["Magnifique ! Une pièce de collection.", "Je dois avoir ça dans ma galerie.", "Quel est votre meilleur prix ?"], colors: { body: '#667eea', head: '#f6e0b5' } }
+        ];
+
+        // Articles de la boutique (avec leurs positions dans le studio)
+        const shopItems = [
+            { id: 'easel', name: 'Chevalet Amélioré', cost: 50, description: 'Augmente la qualité de base de vos œuvres.', effect: { fame: 0.1 } , bought: false, studioX: 500, studioY: 100, width: 300, height: 300, type: 'easel'}, // Position de l'easel
+            { id: 'decor', name: 'Décoration Murale', cost: 30, description: 'Améliore l\'ambiance du studio, attire plus de clients.', effect: { reputation: 5 }, bought: false, studioX: 100, studioY: 50, width: 80, height: 60, type: 'decor'},
+            { id: 'lights', name: 'Éclairage d\'Atelier', cost: 75, description: 'Rend vos couleurs plus éclatantes, améliore la qualité.', effect: { fame: 0.2 }, bought: false, studioX: studioCanvas.width / 2, studioY: 30, width: 40, height: 40, type: 'light'},
+            { id: 'sofa', name: 'Canapé Confortable', cost: 60, description: 'Les clients attendent plus longtemps, plus de chances de vente.', effect: { customerWaitTime: 10 }, bought: false, studioX: 100, studioY: studioCanvas.height - 120, width: 150, height: 80, type: 'sofa'}
+        ];
+
+        // --- Fonctions Utilitaires ---
+
+        /**
+         * Affiche un message temporaire à l'écran.
+         * @param {string} message - Le message à afficher.
+         * @param {string} type - Le type de message (ex: 'info', 'error', 'success').
+         */
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box show pixel-font'; // Réinitialise et ajoute la classe show
+            if (type === 'error') {
+                messageBox.style.backgroundColor = '#dc2626'; // Rouge pour les erreurs
+            } else if (type === 'success') {
+                messageBox.style.backgroundColor = '#16a34a'; // Vert pour le succès
             } else {
-                hudOverlay.classList.remove('active');
-                document.exitPointerLock();
+                messageBox.style.backgroundColor = '#333'; // Gris par défaut
+            }
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000); // Le message disparaît après 3 secondes
+        }
+
+        /**
+         * Ajoute un message au journal de bord du jeu.
+         * @param {string} message - Le message à ajouter.
+         */
+        function addLogMessage(message) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            logBox.prepend(p); // Ajoute le message en haut
+            // Limite le nombre de messages pour éviter l'encombrement
+            if (logBox.children.length > 30) {
+                logBox.removeChild(logBox.lastChild);
             }
         }
 
         /**
-         * @function startGame
-         * @description Démarre le jeu et cache le menu principal.
+         * Met à jour l'affichage des statistiques du joueur.
          */
-        function startGame() {
-            playerBody.position.set(0, 5, 0); // Réinitialise la position du joueur
-            playerBody.velocity.set(0, 0, 0); // Réinitialise la vélocité
-            inVehicle = false;
-            showMenu(null); // Cache tous les menus, active le HUD
+        function updateStatsDisplay() {
+            moneyDisplay.textContent = player.money.toFixed(0) + ' €'; // Arrondi pour le pixel art
+            reputationDisplay.textContent = player.reputation;
+            fameDisplay.textContent = player.fame.toFixed(1);
+            statusDisplay.textContent = player.status;
         }
 
         /**
-         * @function onWindowResize
-         * @description Gère le redimensionnement de la fenêtre du navigateur.
+         * Met à jour l'affichage de la galerie d'œuvres d'art.
          */
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        function updateGalleryDisplay() {
+            galleryDisplay.innerHTML = ''; // Vide la galerie actuelle
+            if (player.inventory.length === 0) {
+                noArtMessage.style.display = 'block';
+                galleryDisplay.appendChild(noArtMessage);
+            } else {
+                noArtMessage.style.display = 'none';
+                player.inventory.forEach(art => {
+                    const artCard = document.createElement('div');
+                    artCard.className = 'art-card';
+                    artCard.innerHTML = `
+                        <img src="${art.dataURL}" alt="${art.name || 'Œuvre sans titre'}">
+                        <h3 class="font-bold text-md text-gray-800 mb-1 pixel-font">${art.name || 'Œuvre sans titre'}</h3>
+                        <p class="text-xs text-gray-600 pixel-font">Qualité: ${art.quality.toFixed(1)}</p>
+                        <p class="text-xs text-gray-600 pixel-font">Valeur: ${art.baseValue.toFixed(0)} €</p>
+                        <button data-id="${art.id}" class="sell-item-btn mt-3 bg-purple-500 hover:bg-purple-600 text-white text-sm font-semibold py-2 px-4 rounded-md pixel-font">
+                            Mettre en vente
+                        </button>
+                    `;
+                    galleryDisplay.appendChild(artCard);
+                });
+
+                // Attache les écouteurs d'événements aux nouveaux boutons "Mettre en vente"
+                document.querySelectorAll('.sell-item-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const artId = parseInt(event.target.dataset.id);
+                        offerArtToCustomer(artId);
+                    });
+                });
+            }
         }
 
         /**
-         * @function onKeyDown
-         * @description Gère les événements de pression de touche.
-         * @param {KeyboardEvent} event L'événement clavier.
+         * Met à jour le statut de l'artiste en fonction de sa renommée.
          */
-        function onKeyDown(event) {
-            const key = event.key === ' ' ? 'Space' : event.key; // Normalise la touche Espace
+        function updateArtistStatus() {
+            if (player.fame >= 100) {
+                player.status = "Maître Artiste";
+            } else if (player.fame >= 50) {
+                player.status = "Artiste Reconnu";
+            } else if (player.fame >= 20) {
+                player.status = "Artiste Émergent";
+            } else {
+                player.status = "Débutant";
+            }
+        }
 
-            if (remappingKey) {
-                // Si nous sommes en mode remappage
-                event.preventDefault(); // Empêche le comportement par défaut de la touche
-                const newKey = event.key === ' ' ? 'Space' : event.key.toUpperCase();
-                remappingKey(newKey); // Appelle la fonction de rappel avec la nouvelle touche
-                remappingKey = null; // Réinitialise le mode remappage
-                showStatusMessage(`Touche assignée à ${newKey}.`, 1500);
+        /**
+         * Met à jour l'affichage de la boutique.
+         */
+        function updateShopDisplay() {
+            shopDisplay.innerHTML = '';
+            shopItems.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'shop-item';
+                itemCard.innerHTML = `
+                    <h3 class="pixel-font">${item.name}</h3>
+                    <p class="pixel-font">${item.description}</p>
+                    <p class="font-semibold pixel-font">${item.cost} €</p>
+                    <button data-id="${item.id}" ${item.bought ? 'disabled' : ''} class="buy-item-btn mt-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 px-4 rounded-md pixel-font ${item.bought ? 'opacity-50 cursor-not-allowed' : ''}">
+                        ${item.bought ? 'Acheté' : 'Acheter'}
+                    </button>
+                `;
+                shopDisplay.appendChild(itemCard);
+            });
+
+            document.querySelectorAll('.buy-item-btn').forEach(button => {
+                if (!button.disabled) {
+                    button.addEventListener('click', (event) => {
+                        const itemId = event.target.dataset.id;
+                        buyShopItem(itemId);
+                    });
+                }
+            });
+        }
+
+        // --- Logique de Dessin sur Canvas ---
+
+        /**
+         * Commence le dessin lorsque la souris est pressée.
+         * @param {MouseEvent} e - L'événement de la souris.
+         */
+        function startDrawing(e) {
+            // Vérifie si le clic est dans la zone de dessin de l'œuvre
+            const rect = studioCanvas.getBoundingClientRect();
+            const scaleX = studioCanvas.width / rect.width;
+            const scaleY = studioCanvas.height / rect.height;
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+
+            if (mouseX >= artDrawingArea.x && mouseX <= artDrawingArea.x + artDrawingArea.width &&
+                mouseY >= artDrawingArea.y && mouseY <= artDrawingArea.y + artDrawingArea.height) {
+                isDrawing = true;
+                [lastX, lastY] = [mouseX, mouseY];
+                // Enregistre les pixels dessinés pour l'estimation de la complexité
+                drawnPixels.add(`${Math.floor((mouseX - artDrawingArea.x) / 5)},${Math.floor((mouseY - artDrawingArea.y) / 5)}`);
+            }
+        }
+
+        /**
+         * Dessine une ligne lorsque la souris est déplacée et pressée.
+         * @param {MouseEvent} e - L'événement de la souris.
+         */
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const rect = studioCanvas.getBoundingClientRect();
+            const scaleX = studioCanvas.width / rect.width;
+            const scaleY = studioCanvas.height / rect.height;
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+
+            // S'assure de ne dessiner que dans la zone de l'œuvre
+            if (mouseX >= artDrawingArea.x && mouseX <= artDrawingArea.x + artDrawingArea.width &&
+                mouseY >= artDrawingArea.y && mouseY <= artDrawingArea.y + artDrawingArea.height) {
+
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(mouseX, mouseY);
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = brushSize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+
+                // Enregistre les pixels traversés pour l'estimation de la complexité
+                const dx = mouseX - lastX;
+                const dy = mouseY - lastY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                for (let i = 0; i < distance; i += 5) { // Échantillonne tous les 5 pixels
+                    const x = lastX + (dx / distance) * i;
+                    const y = lastY + (dy / distance) * i;
+                    drawnPixels.add(`${Math.floor((x - artDrawingArea.x) / 5)},${Math.floor((y - artDrawingArea.y) / 5)}`);
+                }
+
+                [lastX, lastY] = [mouseX, mouseY];
+            } else {
+                // Si la souris sort de la zone de dessin pendant le dessin, arrête le dessin
+                isDrawing = false;
+            }
+        }
+
+        /**
+         * Arrête le dessin lorsque la souris est relâchée ou quitte le canvas.
+         */
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        /**
+         * Efface le contenu du canvas dans la zone de dessin de l'œuvre.
+         */
+        function clearCanvas() {
+            ctx.clearRect(artDrawingArea.x, artDrawingArea.y, artDrawingArea.width, artDrawingArea.height);
+            ctx.fillStyle = '#ffffff'; // Réinitialise le fond en blanc
+            ctx.fillRect(artDrawingArea.x, artDrawingArea.y, artDrawingArea.width, artDrawingArea.height);
+            drawnPixels.clear(); // Réinitialise les pixels dessinés
+            currentDrawingData = null; // Efface l'image du dessin en cours
+            addLogMessage("Le canvas a été effacé. Prêt pour une nouvelle œuvre !");
+        }
+
+        // --- Logique du Jeu ---
+
+        /**
+         * Configure l'écran de démarrage et la création de personnage.
+         */
+        function setupStartScreen() {
+            const charOptions = document.querySelectorAll('.char-option');
+            let selectedCharIndex = 0; // Par défaut, le premier personnage est sélectionné
+
+            // Dessine les aperçus des personnages
+            charOptions.forEach((option, index) => {
+                const previewCanvas = option.querySelector('.char-preview-canvas');
+                const previewCtx = previewCanvas.getContext('2d');
+                pixelCharacters[index].draw(previewCtx, 0, 0, previewCanvas.width); // Dessine le personnage
+                option.dataset.charIndex = index; // Stocke l'index du personnage
+            });
+
+            // Sélectionne le premier personnage par défaut
+            charOptions[selectedCharIndex].classList.add('selected');
+            player.character = pixelCharacters[selectedCharIndex];
+
+            charOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    charOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedCharIndex = parseInt(option.dataset.charIndex);
+                    player.character = pixelCharacters[selectedCharIndex];
+                });
+            });
+
+            document.getElementById('startGameBtn').addEventListener('click', () => {
+                const artistName = document.getElementById('artistNameInput').value.trim();
+                if (artistName) {
+                    player.name = artistName;
+                } else {
+                    player.name = "Artiste Inconnu";
+                }
+                startScreen.classList.add('hidden');
+                gameContainer.classList.remove('hidden');
+                initGame();
+                startTutorial(); // Lance le tutoriel après le démarrage du jeu
+            });
+        }
+
+        /**
+         * Initialise l'état du jeu et les écouteurs d'événements.
+         */
+        function initGame() {
+            // Configure le canvas pour le dessin
+            studioCanvas.width = studioCanvas.offsetWidth;
+            studioCanvas.height = studioCanvas.offsetHeight;
+            clearCanvas(); // Efface la zone de dessin initiale
+
+            // Écouteurs d'événements pour le dessin
+            studioCanvas.addEventListener('mousedown', startDrawing);
+            studioCanvas.addEventListener('mousemove', draw);
+            studioCanvas.addEventListener('mouseup', stopDrawing);
+            studioCanvas.addEventListener('mouseout', stopDrawing); // Arrête le dessin si la souris quitte le canvas
+
+            // Écouteurs pour les outils de dessin
+            brushSizeInput.addEventListener('input', (e) => {
+                brushSize = parseInt(e.target.value);
+            });
+            colorPicker.addEventListener('input', (e) => {
+                currentColor = e.target.value;
+            });
+            clearCanvasBtn.addEventListener('click', clearCanvas);
+
+            // Écouteur pour le bouton "Terminer l'œuvre"
+            createArtBtn.addEventListener('click', createArt);
+
+            // Écouteurs pour les boutons d'offre client
+            acceptOfferBtn.addEventListener('click', acceptOffer);
+            rejectOfferBtn.addEventListener('click', rejectOffer);
+
+            nextTutorialBtn.addEventListener('click', advanceTutorial);
+
+            updateStatsDisplay();
+            updateGalleryDisplay();
+            updateShopDisplay();
+            addLogMessage(`Bienvenue, ${player.name} ! Préparez-vous à devenir un artiste de renommée mondiale.`);
+
+            // Démarrer la boucle de jeu principale (gestion du temps, clients, loyer)
+            setInterval(gameTick, 1000); // Chaque seconde
+            // Les clients n'apparaissent qu'après le tutoriel
+        }
+
+        /**
+         * Fonction de "tick" du jeu, appelée périodiquement.
+         */
+        function gameTick() {
+            if (!tutorialActive) { // Le loyer et les clients ne sont actifs qu'après le tutoriel
+                player.rentDueIn--;
+                if (player.rentDueIn <= 0) {
+                    payRent();
+                    player.rentDueIn = 30; // Réinitialise le compteur de loyer
+                }
+            }
+
+            // Mettre à jour la position des clients et du PNJ du tutoriel
+            [...customers, tutorialNPC].filter(Boolean).forEach(entity => {
+                if (entity.state === 'entering') {
+                    entity.x += entity.speed;
+                    if (entity.x >= entity.targetX) {
+                        entity.x = entity.targetX;
+                        entity.state = 'viewing';
+                        entity.viewingTime = 0;
+                    }
+                } else if (entity.state === 'viewing') {
+                    entity.viewingTime++;
+                    if (entity === tutorialNPC) return; // Le PNJ du tuto ne part pas seul
+
+                    // Le client part après un certain temps, ou s'il n'y a pas d'œuvres à vendre
+                    let maxViewTime = 10 + (player.upgrades.find(u => u.id === 'sofa') ? 10 : 0); // Canapé augmente le temps d'attente
+                    if (entity.viewingTime > maxViewTime && !currentCustomerInteraction) { // S'il n'est pas en interaction
+                        if (player.inventory.length === 0) {
+                            entity.state = 'leaving';
+                            addLogMessage(`${entity.name} est parti car il n'y avait rien à voir.`);
+                        } else if (Math.random() < 0.3) { // 30% de chance qu'il parte s'il n'y a pas d'interaction
+                            entity.state = 'leaving';
+                            addLogMessage(`${entity.name} est parti sans acheter.`);
+                        }
+                    }
+                } else if (entity.state === 'leaving') {
+                    entity.x += entity.speed; // Il continue de se déplacer vers la droite
+                    if (entity.x > studioCanvas.width + 50) { // Hors de l'écran
+                        customers = customers.filter(c => c !== entity); // Retire le client
+                    }
+                }
+            });
+        }
+
+        /**
+         * Gère le paiement du loyer.
+         */
+        function payRent() {
+            if (player.money >= player.rentAmount) {
+                player.money -= player.rentAmount;
+                addLogMessage(`Vous avez payé le loyer de ${player.rentAmount} €. Il vous reste ${player.money.toFixed(0)} €.`);
+                showMessage(`Loyer de ${player.rentAmount} € payé.`, 'info');
+            } else {
+                player.money -= player.rentAmount; // Le loyer est dû même si pas assez d'argent
+                addLogMessage(`Vous n'avez pas assez d'argent pour le loyer ! Vous êtes endetté de ${player.money < 0 ? Math.abs(player.money).toFixed(0) : 0} €. Votre réputation en prend un coup.`);
+                showMessage("Pas assez d'argent pour le loyer !", 'error');
+                player.reputation = Math.max(0, player.reputation - 10); // Pénalité de réputation
+            }
+            updateStatsDisplay();
+        }
+
+        /**
+         * Calcule la qualité d'une œuvre en fonction du dessin et de la renommée du joueur.
+         * @returns {number} La qualité de l'œuvre (entre 1 et 100).
+         */
+        function calculateArtQuality() {
+            // La qualité est influencée par:
+            // 1. La "complexité" du dessin (nombre de pixels dessinés)
+            // 2. La renommée du joueur
+            // 3. Les améliorations du studio (ex: easel)
+            const artAreaPixels = (artDrawingArea.width / 5) * (artDrawingArea.height / 5);
+            const pixelDensity = drawnPixels.size / artAreaPixels;
+            let baseQuality = (pixelDensity * 70) + (player.fame * 0.5); // Max 70 pour densité, plus renommée
+
+            // Bonus des améliorations
+            if (player.upgrades.find(u => u.id === 'easel')) {
+                baseQuality += 10; // Bonus de qualité pour le chevalet amélioré
+            }
+            if (player.upgrades.find(u => u.id === 'lights')) {
+                baseQuality += 5; // Bonus de qualité pour l'éclairage
+            }
+
+            baseQuality = Math.min(100, Math.max(1, baseQuality)); // S'assure que c'est entre 1 et 100
+
+            // Ajoute une petite variation aléatoire
+            const finalQuality = baseQuality + (Math.random() * 20 - 10); // +/- 10
+            return Math.max(1, Math.min(100, finalQuality));
+        }
+
+        /**
+         * Crée une nouvelle œuvre d'art à partir du contenu du canvas.
+         */
+        function createArt() {
+            if (drawnPixels.size < 50) { // Exige un minimum de dessin pour considérer l'œuvre "terminée"
+                showMessage("Dessinez quelque chose avant de terminer l'œuvre !", 'error');
                 return;
             }
 
-            keysPressed[key] = true;
+            const artName = artNameInput.value.trim() || `Œuvre #${player.artIdCounter + 1}`;
+            const quality = calculateArtQuality();
+            const baseValue = (quality * 5) + (player.fame * 2) + (Math.random() * 50); // Valeur de base influencée par qualité et renommée
+            const value = Math.round(baseValue);
 
-            if (key === keyBindings['toggleMenu'] && gameRunning) {
-                showMenu('main-menu'); // Ouvre le menu principal
-            } else if (key === keyBindings['toggleMenu'] && !gameRunning && currentMenu !== 'main-menu') {
-                showMenu('main-menu'); // Retour au menu principal si on est dans un sous-menu
-            }
+            // Capture uniquement la zone de dessin de l'œuvre
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = artDrawingArea.width;
+            tempCanvas.height = artDrawingArea.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(studioCanvas, artDrawingArea.x, artDrawingArea.y, artDrawingArea.width, artDrawingArea.height, 0, 0, artDrawingArea.width, artDrawingArea.height);
 
-            if (gameRunning) {
-                if (key === keyBindings['jump'] && !inVehicle) {
-                    // Vérifie si le joueur est au sol avant de sauter
-                    const rayFrom = playerBody.position;
-                    const rayTo = new CANNON.Vec3(playerBody.position.x, playerBody.position.y - 1.0, playerBody.position.z);
-                    const result = new CANNON.RaycastResult();
-                    // Correction: Utiliser raycastClosest pour une vérification de collision unique
-                    world.raycastClosest(rayFrom, rayTo, { skipBackfaces: true }, result);
-                    if (result.hasHit && result.distance < 1.1) { // Une petite tolérance pour le sol
-                         playerBody.velocity.y = playerJumpForce;
-                    }
-                }
-                if (key === keyBindings['interact']) {
-                    handleInteraction();
-                }
-                if (key === keyBindings['inventory']) {
-                    toggleInventory();
-                }
-            }
+            const newArt = {
+                id: player.artIdCounter++,
+                name: artName,
+                dataURL: tempCanvas.toDataURL(), // Sauvegarde l'image de la zone de dessin
+                quality: quality,
+                baseValue: value // Valeur de base avant négociation
+            };
+
+            player.inventory.push(newArt);
+            addLogMessage(`Vous avez terminé l'œuvre "${newArt.name}" (Qualité: ${newArt.quality.toFixed(1)}, Valeur estimée: ${newArt.baseValue.toFixed(0)} €).`);
+            showMessage(`Œuvre "${newArt.name}" créée !`, 'success');
+
+            // Efface le canvas et réinitialise pour la prochaine œuvre
+            clearCanvas();
+            artNameInput.value = '';
+            updateGalleryDisplay();
+            updateStatsDisplay(); // Pour voir la renommée potentiellement augmenter plus tard
         }
 
         /**
-         * @function onKeyUp
-         * @description Gère les événements de relâchement de touche.
-         * @param {KeyboardEvent} event L'événement clavier.
+         * Fait apparaître un nouveau client.
          */
-        function onKeyUp(event) {
-            const key = event.key === ' ' ? 'Space' : event.key;
-            keysPressed[key] = false;
-        }
+        function spawnCustomer() {
+            // Limite le nombre de clients présents en même temps
+            if (customers.length >= 3 || tutorialActive) return; // Pas de clients pendant le tuto
 
-        /**
-         * @function onMouseMove
-         * @description Gère les mouvements de la souris pour la caméra.
-         * @param {MouseEvent} event L'événement souris.
-         */
-        function onMouseMove(event) {
-            if (gameRunning) {
-                // Utilise event.movementX/Y pour un contrôle plus fluide avec PointerLock
-                const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-                const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-
-                // Rotation horizontale (autour de l'axe Y global)
-                const yaw = movementX * 0.002;
-                playerMesh.rotation.y -= yaw; // Fait pivoter le mesh du joueur pour l'orientation
-
-                // Rotation verticale de la caméra (limité pour éviter le "flip")
-                const pitch = movementY * 0.002;
-                camera.rotation.x -= pitch;
-                camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x)); // Limite la rotation
-
-                // Met à jour l'orientation du corps physique du joueur pour la direction du mouvement
-                const q = new CANNON.Quaternion();
-                q.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), playerMesh.rotation.y);
-                playerBody.quaternion.copy(q);
+            // Sélectionne un client en fonction de la renommée du joueur
+            const availableCustomers = customerTypes.filter(c => player.fame >= c.minFame);
+            if (availableCustomers.length === 0) {
+                addLogMessage("Aucun client disponible pour votre niveau de renommée actuel. Continuez à améliorer votre renommée !");
+                return;
             }
+            const customerType = availableCustomers[Math.floor(Math.random() * availableCustomers.length)];
+
+            const newCustomer = {
+                ...customerType,
+                x: -50, // Commence hors de l'écran à gauche
+                y: studioCanvas.height / 2 + (Math.random() * 100 - 50), // Position Y aléatoire dans le studio
+                speed: 1 + Math.random() * 0.5, // Vitesse de déplacement
+                targetX: Math.random() * (studioCanvas.width - 200) + 50, // Position aléatoire où il s'arrête
+                state: 'entering', // 'entering', 'viewing', 'leaving'
+                viewingTime: 0 // Temps passé à regarder
+            };
+            customers.push(newCustomer);
+            addLogMessage(`${newCustomer.name} est entré dans votre studio.`);
+            showMessage(`${newCustomer.name} est arrivé !`, 'info');
         }
 
         /**
-         * @function onMouseDown
-         * @description Gère le clic de souris (pour la caméra).
-         * @param {MouseEvent} event L'événement souris.
+         * Propose une œuvre d'art spécifique au client actuel.
+         * @param {number} artId - L'ID de l'œuvre à proposer.
          */
-        function onMouseDown(event) {
-            if (gameRunning && event.button === 0) { // Clic gauche
-                isDragging = true;
-                previousMousePosition.x = event.clientX;
-                previousMousePosition.y = event.clientY;
+        function offerArtToCustomer(artId) {
+            if (customers.length === 0) {
+                showMessage("Il n'y a pas de client dans le studio pour le moment.", 'error');
+                return;
             }
-        }
-
-        /**
-         * @function onMouseUp
-         * @description Gère le relâchement du clic de souris (pour la caméra).
-         * @param {MouseEvent} event L'événement souris.
-         */
-        function onMouseUp(event) {
-            if (event.button === 0) { // Clic gauche
-                isDragging = false;
+            if (currentCustomerInteraction) {
+                showMessage("Un client examine déjà une œuvre. Attendez sa décision.", 'error');
+                return;
             }
-        }
 
-        /**
-         * @function updateKeyBindingsDisplay
-         * @description Met à jour l'affichage des touches configurées dans le menu.
-         */
-        function updateKeyBindingsDisplay() {
-            keyBindingListDiv.innerHTML = ''; // Vide la liste existante
-
-            for (const action in keyBindings) {
-                const item = document.createElement('div');
-                item.className = 'key-binding-item';
-
-                const actionName = {
-                    'moveForward': 'Avancer',
-                    'moveBackward': 'Reculer',
-                    'moveLeft': 'Gauche',
-                    'moveRight': 'Droite',
-                    'jump': 'Sauter',
-                    'interact': 'Interagir',
-                    'inventory': 'Inventaire',
-                    'toggleMenu': 'Menu'
-                }[action] || action; // Traduit le nom de l'action
-
-                const keySpan = document.createElement('span');
-                keySpan.textContent = `${actionName}:`;
-                item.appendChild(keySpan);
-
-                const keyButton = document.createElement('button');
-                keyButton.textContent = keyBindings[action];
-                keyButton.addEventListener('click', () => {
-                    keyButton.textContent = 'Appuyez sur une touche...';
-                    remappingKey = (newKey) => {
-                        keyBindings[action] = newKey;
-                        keyButton.textContent = newKey; // Met à jour le bouton
-                        remappingKey = null; // Réinitialise le mode remappage
-                    };
-                });
-                item.appendChild(keyButton);
-                keyBindingListDiv.appendChild(item);
+            const artIndex = player.inventory.findIndex(art => art.id === artId);
+            if (artIndex === -1) {
+                showMessage("Erreur: Cette œuvre n'existe pas dans votre inventaire.", 'error');
+                return;
             }
-        }
 
-        /**
-         * @function updateInventoryDisplay
-         * @description Met à jour l'affichage de l'inventaire dans le HUD.
-         */
-        function updateInventoryDisplay() {
-            inventoryListElement.innerHTML = '';
-            if (inventory.length === 0) {
-                const li = document.createElement('li');
-                li.textContent = 'Inventaire vide';
-                inventoryListElement.appendChild(li);
+            currentArtForSale = player.inventory[artIndex];
+            // Sélectionne un client aléatoire parmi ceux qui sont en mode 'viewing'
+            const potentialCustomers = customers.filter(c => c.state === 'viewing');
+            if (potentialCustomers.length === 0) {
+                showMessage("Aucun client n'est disponible pour interagir en ce moment.", 'error');
+                return;
+            }
+            currentCustomerInteraction = potentialCustomers[Math.floor(Math.random() * potentialCustomers.length)];
+
+
+            // Calcule l'offre du client
+            let customerInterest = 1;
+            // Plus la qualité correspond aux préférences du client, plus l'intérêt est élevé
+            if (currentArtForSale.quality >= currentCustomerInteraction.qualityPref.min && currentArtForSale.quality <= currentCustomerInteraction.qualityPref.max) {
+                customerInterest = 1.2; // Bonne correspondance
+            } else if (currentArtForSale.quality < currentCustomerInteraction.qualityPref.min) {
+                customerInterest = 0.7; // Trop faible qualité
             } else {
-                inventory.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    inventoryListElement.appendChild(li);
-                });
+                customerInterest = 0.9; // Trop haute qualité ou hors de leur zone de confort
             }
+
+            // L'offre est basée sur la valeur de base de l'œuvre, l'intérêt du client et sa tolérance au prix
+            currentOffer = currentArtForSale.baseValue * customerInterest *
+                            (currentCustomerInteraction.priceTolerance.min + Math.random() * (currentCustomerInteraction.priceTolerance.max - currentCustomerInteraction.priceTolerance.min));
+            currentOffer = Math.round(currentOffer);
+
+            customerMessage.textContent = `${currentCustomerInteraction.name} dit: "${currentCustomerInteraction.messages[Math.floor(Math.random() * currentCustomerInteraction.messages.length)]}" Je vous offre ${currentOffer.toFixed(0)} € pour "${currentArtForSale.name}".`;
+            customerInteraction.classList.remove('hidden');
+            addLogMessage(`${currentCustomerInteraction.name} offre ${currentOffer.toFixed(0)} € pour "${currentArtForSale.name}".`);
         }
 
         /**
-         * @function toggleInventory
-         * @description Affiche ou masque l'inventaire.
+         * Accepte l'offre du client.
          */
-        function toggleInventory() {
-            const inventoryDisplay = document.getElementById('inventory-display');
-            if (inventoryDisplay.style.display === 'none' || inventoryDisplay.style.display === '') {
-                inventoryDisplay.style.display = 'block';
-                updateInventoryDisplay();
+        function acceptOffer() {
+            if (!currentArtForSale || !currentCustomerInteraction) return;
+
+            player.money += currentOffer;
+            player.inventory = player.inventory.filter(art => art.id !== currentArtForSale.id); // Retire l'œuvre
+
+            // Ajuste la réputation et la renommée
+            const qualityDifference = currentArtForSale.quality - ((currentCustomerInteraction.qualityPref.min + currentCustomerInteraction.qualityPref.max) / 2);
+            if (qualityDifference > 10) { // Bonne vente, bonne qualité
+                player.reputation += 5;
+                player.fame += 0.5;
+                addLogMessage(`Vente réussie ! "${currentArtForSale.name}" vendu pour ${currentOffer.toFixed(0)} €. Votre réputation et renommée augmentent !`);
+                showMessage(`Vendu ! +${currentOffer.toFixed(0)} €`, 'success');
+            } else if (qualityDifference < -10) { // Mauvaise vente, faible qualité
+                player.reputation = Math.max(0, player.reputation - 5);
+                player.fame = Math.max(1, player.fame - 0.2);
+                addLogMessage(`Vente de "${currentArtForSale.name}" pour ${currentOffer.toFixed(0)} €. La faible qualité a légèrement affecté votre réputation.`);
+                showMessage(`Vendu. Réputation affectée.`, 'info');
+            } else { // Vente neutre
+                addLogMessage(`Vente de "${currentArtForSale.name}" pour ${currentOffer.toFixed(0)} €.`);
+                showMessage(`Vendu pour ${currentOffer.toFixed(0)} €`, 'success');
+            }
+
+            // Le client qui a acheté l'œuvre quitte le studio
+            currentCustomerInteraction.state = 'leaving';
+
+            resetCustomerInteraction();
+            updateStatsDisplay();
+            updateGalleryDisplay();
+            updateArtistStatus();
+        }
+
+        /**
+         * Refuse l'offre du client.
+         */
+        function rejectOffer() {
+            if (!currentArtForSale || !currentCustomerInteraction) return;
+
+            player.reputation = Math.max(0, player.reputation - 2); // Petite pénalité de réputation
+            addLogMessage(`Vous avez refusé l'offre de ${currentOffer.toFixed(0)} € pour "${currentArtForSale.name}". ${currentCustomerInteraction.name} est parti.`);
+            showMessage(`Offre refusée. ${currentCustomerInteraction.name} est parti.`, 'info');
+
+            // Le client qui a refusé l'offre quitte le studio
+            currentCustomerInteraction.state = 'leaving';
+
+            resetCustomerInteraction();
+            updateStatsDisplay();
+        }
+
+        /**
+         * Réinitialise l'état de l'interaction client.
+         */
+        function resetCustomerInteraction() {
+            customerInteraction.classList.add('hidden');
+            currentCustomerInteraction = null;
+            currentArtForSale = null;
+            currentOffer = 0;
+        }
+
+        /**
+         * Achète un article de la boutique.
+         * @param {string} itemId - L'ID de l'article à acheter.
+         */
+        function buyShopItem(itemId) {
+            const item = shopItems.find(i => i.id === itemId);
+            if (!item) {
+                showMessage("Article non trouvé.", 'error');
+                return;
+            }
+            if (item.bought) {
+                showMessage("Vous avez déjà acheté cet article.", 'info');
+                return;
+            }
+            if (player.money < item.cost) {
+                showMessage("Pas assez d'argent pour acheter cet article.", 'error');
+                return;
+            }
+
+            player.money -= item.cost;
+            player.upgrades.push(item);
+            item.bought = true; // Marque l'article comme acheté
+
+            // Applique les effets de l'amélioration
+            if (item.effect) {
+                if (item.effect.fame) player.fame += item.effect.fame;
+                if (item.effect.reputation) player.reputation += item.effect.reputation;
+                // D'autres effets peuvent être ajoutés ici
+            }
+
+            addLogMessage(`Vous avez acheté "${item.name}" pour ${item.cost} €. Votre studio est amélioré !`);
+            showMessage(`"${item.name}" acheté !`, 'success');
+            updateStatsDisplay();
+            updateShopDisplay(); // Met à jour la boutique pour désactiver le bouton
+            drawStudio(); // Redessine le studio avec le nouvel objet
+        }
+
+        // --- Tutoriel ---
+        const tutorialSteps = [
+            { message: `Bonjour, ${player.name} ! Bienvenue dans votre nouveau salon d'artiste. Je suis votre guide.`, npcX: 100, npcY: 200 },
+            { message: "C'est ici que vous allez créer vos chefs-d'œuvre. Utilisez le pinceau et la palette de couleurs en haut pour dessiner sur le chevalet.", npcX: 550, npcY: 200 },
+            { message: "Une fois satisfait, cliquez sur 'Terminer l'œuvre'. Elle apparaîtra dans votre galerie en bas.", npcX: 550, npcY: 200 },
+            { message: "Des clients viendront visiter votre salon. Vous pourrez leur proposer vos œuvres à la vente.", npcX: 100, npcY: 200 },
+            { message: "Gardez un œil sur votre Argent, votre Réputation et votre Renommée en haut de l'écran. La renommée attire de meilleurs clients !", npcX: 300, npcY: 50 },
+            { message: "N'oubliez pas de visiter la Boutique d'Améliorations. Vous pouvez y acheter des objets pour embellir votre studio et améliorer vos compétences.", npcX: 300, npcY: 50 },
+            { message: "Et attention au loyer ! Il est dû tous les 30 jours. Vendez vos œuvres pour ne pas vous retrouver sans le sou.", npcX: 300, npcY: 50 },
+            { message: "Maintenant, à vous de jouer, ${player.name} ! Bonne chance dans votre carrière artistique !", npcX: 100, npcY: 200, final: true }
+        ];
+
+        function startTutorial() {
+            tutorialActive = true;
+            tutorialStep = 0;
+            tutorialNPC = {
+                name: "Guide",
+                x: -50, // Commence hors écran
+                y: studioCanvas.height / 2,
+                speed: 2,
+                targetX: 100, // Position initiale du guide
+                state: 'entering',
+                colors: { body: '#805ad5', head: '#f6e0b5' }, // Couleurs du PNJ guide
+                draw: function(ctx, x, y, size) { // Fonction de dessin pour le PNJ
+                    const s = size / 8;
+                    ctx.fillStyle = this.colors.body;
+                    ctx.fillRect(x + s*2, y + s*4, s*4, s*4);
+                    ctx.fillStyle = this.colors.head;
+                    ctx.fillRect(x + s*3, y + s*1, s*2, s*3);
+                }
+            };
+            tutorialDialog.classList.remove('hidden');
+            advanceTutorial();
+        }
+
+        function advanceTutorial() {
+            if (tutorialStep < tutorialSteps.length) {
+                const step = tutorialSteps[tutorialStep];
+                tutorialMessage.textContent = step.message.replace("${player.name}", player.name);
+                tutorialNPC.targetX = step.npcX;
+                tutorialNPC.y = step.npcY; // Ajuste la hauteur du PNJ si nécessaire pour le dialogue
+
+                if (step.final) {
+                    nextTutorialBtn.textContent = "Commencer le jeu !";
+                }
+                tutorialStep++;
             } else {
-                inventoryDisplay.style.display = 'none';
+                tutorialActive = false;
+                tutorialDialog.classList.add('hidden');
+                tutorialNPC.state = 'leaving'; // Le PNJ quitte l'écran
+                setInterval(spawnCustomer, 10000); // Commence à faire apparaître les clients
             }
         }
 
+        // --- Rendu du Studio sur Canvas ---
+
         /**
-         * @function updatePlayerMovement
-         * @description Met à jour la position et la vélocité du joueur en fonction des touches pressées.
+         * Dessine un personnage pixelisé (joueur ou PNJ).
+         * @param {CanvasRenderingContext2D} ctx - Contexte du canvas.
+         * @param {object} char - L'objet personnage avec ses couleurs et sa fonction de dessin.
+         * @param {number} x - Position X.
+         * @param {number} y - Position Y.
+         * @param {number} size - Taille du personnage.
          */
-        function updatePlayerMovement() {
-            if (!gameRunning) return;
-
-            // Applique la vélocité horizontale du joueur
-            const currentVelocity = playerBody.velocity;
-            const impulse = new CANNON.Vec3(0, 0, 0);
-
-            // Calcule la direction de mouvement basée sur l'orientation du joueur
-            const forward = new THREE.Vector3(0, 0, -1);
-            forward.applyQuaternion(playerMesh.quaternion); // Utilise la rotation du mesh pour la direction
-            forward.normalize();
-
-            const right = new THREE.Vector3(1, 0, 0);
-            right.applyQuaternion(playerMesh.quaternion);
-            right.normalize();
-
-            if (keysPressed[keyBindings['moveForward']]) {
-                impulse.x += forward.x * playerSpeed;
-                impulse.z += forward.z * playerSpeed;
-            }
-            if (keysPressed[keyBindings['moveBackward']]) {
-                impulse.x -= forward.x * playerSpeed;
-                impulse.z -= forward.z * playerSpeed;
-            }
-            if (keysPressed[keyBindings['moveLeft']]) {
-                impulse.x -= right.x * playerSpeed;
-                impulse.z -= right.z * playerSpeed;
-            }
-            if (keysPressed[keyBindings['moveRight']]) {
-                impulse.x += right.x * playerSpeed;
-                impulse.z += right.z * playerSpeed;
-            }
-
-            // Applique l'impulsion en maintenant la vélocité verticale
-            playerBody.velocity.x = impulse.x;
-            playerBody.velocity.z = impulse.z;
-
-            // Met à jour la position de la caméra pour suivre le joueur
-            const cameraOffset = new THREE.Vector3(0, 2, -5); // Décalage de la caméra derrière le joueur
-            cameraOffset.applyQuaternion(playerMesh.quaternion); // Applique la rotation du joueur
-            camera.position.copy(playerMesh.position).add(cameraOffset);
-            camera.lookAt(playerMesh.position.x, playerMesh.position.y + 1, playerMesh.position.z); // La caméra regarde le joueur
+        function drawPixelCharacter(ctx, char, x, y, size) {
+            char.draw(ctx, x, y, size);
         }
 
         /**
-         * @function updateVehicleMovement
-         * @description Gère le mouvement du véhicule.
+         * Dessine les éléments du studio sur le canvas.
          */
-        function updateVehicleMovement() {
-            if (!gameRunning || !inVehicle) return;
+        function drawStudio() {
+            ctx.clearRect(0, 0, studioCanvas.width, studioCanvas.height); // Efface le canvas
 
-            const currentVelocity = vehicleBody.velocity;
-            const impulse = new CANNON.Vec3(0, 0, 0);
+            // Fond du studio (mur et sol)
+            ctx.fillStyle = '#a0aec0'; // Couleur du mur
+            ctx.fillRect(0, 0, studioCanvas.width, studioCanvas.height - 80);
+            ctx.fillStyle = '#718096'; // Couleur du sol
+            ctx.fillRect(0, studioCanvas.height - 80, studioCanvas.width, 80);
 
-            // Simplification: le véhicule se déplace sur l'axe Z local
-            if (keysPressed[keyBindings['moveForward']]) {
-                impulse.z -= vehicleSpeed;
-            }
-            if (keysPressed[keyBindings['moveBackward']]) {
-                impulse.z += vehicleSpeed;
-            }
-            // Simplification: pas de rotation du véhicule pour l'instant
+            // Fenêtre (pixel art simplifié)
+            ctx.fillStyle = '#bfdbfe'; // Bleu clair pour la fenêtre
+            ctx.fillRect(studioCanvas.width - 150, 50, 100, 100);
+            ctx.fillStyle = '#4a5568';
+            ctx.fillRect(studioCanvas.width - 150, 95, 100, 10); // Barre horizontale
+            ctx.fillRect(studioCanvas.width - 105, 50, 10, 100); // Barre verticale
 
-            // Applique l'impulsion en maintenant la vélocité verticale
-            vehicleBody.velocity.x = impulse.x;
-            vehicleBody.velocity.z = impulse.z;
-
-            // Met à jour la position de la caméra pour suivre le véhicule
-            const cameraOffset = new THREE.Vector3(0, 5, 10); // Décalage de la caméra derrière le véhicule
-            cameraOffset.applyQuaternion(vehicleMesh.quaternion);
-            camera.position.copy(vehicleMesh.position).add(cameraOffset);
-            camera.lookAt(vehicleMesh.position.x, vehicleMesh.position.y + 1, vehicleMesh.position.z);
-        }
-
-        /**
-         * @function updateDayNightCycle
-         * @description Met à jour la lumière du soleil pour simuler le cycle jour/nuit.
-         * @param {number} deltaTime Le temps écoulé depuis la dernière frame.
-         */
-        function updateDayNightCycle(deltaTime) {
-            gameTime += deltaTime;
-            const normalizedTime = (gameTime % DAY_DURATION_SECONDS) / DAY_DURATION_SECONDS; // Temps normalisé de 0 à 1
-
-            // Position du soleil (simulation simple)
-            const angle = normalizedTime * Math.PI * 2; // Angle de 0 à 2*PI
-            sunLight.position.x = Math.sin(angle) * 100;
-            sunLight.position.y = Math.cos(angle) * 100; // Y positif = jour, Y négatif = nuit
-            sunLight.position.z = 0;
-
-            // Intensité de la lumière et couleur du ciel
-            const lightIntensity = Math.max(0.1, Math.cos(angle) * 0.8 + 0.2); // Intensité plus faible la nuit
-            sunLight.intensity = lightIntensity;
-            ambientLight.intensity = lightIntensity * 0.5;
-
-            // Couleur du ciel (simplifié)
-            const skyColor = new THREE.Color();
-            if (sunLight.position.y > 0) { // Jour
-                skyColor.setRGB(
-                    0.5 + Math.sin(angle) * 0.3,
-                    0.7 + Math.cos(angle) * 0.1,
-                    0.9 - Math.cos(angle) * 0.2
-                );
-            } else { // Nuit
-                skyColor.setRGB(0.05, 0.05, 0.15);
-            }
-            renderer.setClearColor(skyColor);
-            scene.fog.color.copy(skyColor);
-
-            // Mise à jour de l'heure dans le HUD
-            const totalSecondsInDay = 24 * 60 * 60;
-            const currentDaySecond = Math.floor(normalizedTime * totalSecondsInDay);
-            const hours = Math.floor(currentDaySecond / 3600);
-            const minutes = Math.floor((currentDaySecond % 3600) / 60);
-            hudTimeElement.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-        }
-
-        /**
-         * @function updateWeather
-         * @description Gère la simulation des conditions météorologiques.
-         * @param {number} deltaTime Le temps écoulé depuis la dernière frame.
-         */
-        function updateWeather(deltaTime) {
-            // Changer la météo périodiquement
-            if (gameTime - lastWeatherChangeTime > WEATHER_CHANGE_INTERVAL) {
-                const weatherTypes = ['sunny', 'rainy'];
-                weather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
-                hudWeatherElement.textContent = weather === 'sunny' ? 'Ensoleillé' : 'Pluvieux';
-                lastWeatherChangeTime = gameTime;
-                console.log('Météo changée en:', weather);
-            }
-
-            if (weather === 'rainy') {
-                // Créer des particules de pluie si nécessaire
-                if (!rainParticleSystem) {
-                    const rainGeometry = new THREE.BufferGeometry();
-                    const positions = [];
-                    for (let i = 0; i < 1000; i++) { // 1000 gouttes de pluie
-                        positions.push(
-                            Math.random() * 200 - 100, // x
-                            Math.random() * 100 + 50,  // y (commence plus haut)
-                            Math.random() * 200 - 100  // z
-                        );
-                    }
-                    rainGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-                    const rainMaterial = new THREE.PointsMaterial({
-                        color: 0xaaaaaa,
-                        size: 0.5,
-                        transparent: true,
-                        opacity: 0.6
-                    });
-                    rainParticleSystem = new THREE.Points(rainGeometry, rainMaterial);
-                    scene.add(rainParticleSystem);
+            // Dessine les améliorations du studio
+            player.upgrades.forEach(upgrade => {
+                if (upgrade.type === 'decor') {
+                    // Tableau décoratif pixelisé
+                    ctx.fillStyle = '#a78bfa';
+                    ctx.fillRect(upgrade.studioX, upgrade.studioY, upgrade.width, upgrade.height);
+                    ctx.fillStyle = '#6d28d9';
+                    ctx.fillRect(upgrade.studioX + 10, upgrade.studioY + 10, upgrade.width - 20, upgrade.height - 20);
                 }
+                if (upgrade.type === 'light') {
+                    // Lampe au plafond pixelisée
+                    ctx.fillStyle = '#fcd34d';
+                    ctx.fillRect(upgrade.studioX - upgrade.width / 2, upgrade.studioY, upgrade.width, upgrade.height / 2);
+                    ctx.fillStyle = '#d97706';
+                    ctx.fillRect(upgrade.studioX - upgrade.width / 4, upgrade.studioY + upgrade.height / 2, upgrade.width / 2, upgrade.height / 2);
+                }
+                if (upgrade.type === 'sofa') {
+                    // Canapé pixelisé
+                    ctx.fillStyle = '#9f7aea';
+                    ctx.fillRect(upgrade.studioX, upgrade.studioY, upgrade.width, upgrade.height);
+                    ctx.fillStyle = '#8b5cf6';
+                    ctx.fillRect(upgrade.studioX, upgrade.studioY - 20, upgrade.width, 20); // Dossier
+                }
+            });
 
-                // Animer les particules de pluie
-                const positions = rainParticleSystem.geometry.attributes.position.array;
-                for (let i = 0; i < positions.length; i += 3) {
-                    positions[i + 1] -= 0.5; // Déplace vers le bas
-                    if (positions[i + 1] < 0) { // Si la goutte est sous le sol, la remonte
-                        positions[i + 1] = 100;
-                    }
-                }
-                rainParticleSystem.geometry.attributes.position.needsUpdate = true;
-            } else {
-                // Supprimer les particules de pluie si la météo n'est pas pluvieuse
-                if (rainParticleSystem) {
-                    scene.remove(rainParticleSystem);
-                    rainParticleSystem.geometry.dispose();
-                    rainParticleSystem.material.dispose();
-                    rainParticleSystem = null;
-                }
+            // Dessine le chevalet (toujours présent, même sans l'amélioration)
+            ctx.fillStyle = '#8b4513'; // Marron
+            ctx.fillRect(artDrawingArea.x + artDrawingArea.width / 2 - 10, artDrawingArea.y + artDrawingArea.height, 20, 80); // Pied
+            ctx.beginPath();
+            ctx.moveTo(artDrawingArea.x + artDrawingArea.width / 2 - 10, artDrawingArea.y + artDrawingArea.height);
+            ctx.lineTo(artDrawingArea.x + artDrawingArea.width / 2 - 50, studioCanvas.height - 80);
+            ctx.moveTo(artDrawingArea.x + artDrawingArea.width / 2 + 10, artDrawingArea.y + artDrawingArea.height);
+            ctx.lineTo(artDrawingArea.x + artDrawingArea.width / 2 + 50, studioCanvas.height - 80);
+            ctx.stroke();
+
+            // Dessine la zone de dessin (le cadre du tableau)
+            ctx.fillStyle = '#333';
+            ctx.fillRect(artDrawingArea.x - 5, artDrawingArea.y - 5, artDrawingArea.width + 10, artDrawingArea.height + 10);
+            ctx.fillStyle = '#ffffff'; // Fond blanc du tableau
+            ctx.fillRect(artDrawingArea.x, artDrawingArea.y, artDrawingArea.width, artDrawingArea.height);
+
+            // Redessine le contenu du dessin en cours si il existe
+            if (currentDrawingData) {
+                const img = new Image();
+                img.src = currentDrawingData;
+                img.onload = () => {
+                    ctx.drawImage(img, artDrawingArea.x, artDrawingArea.y, artDrawingArea.width, artDrawingArea.height);
+                };
             }
+
+            // Dessine le joueur
+            if (player.character) {
+                drawPixelCharacter(ctx, player.character, artDrawingArea.x + artDrawingArea.width / 2 - 32, studioCanvas.height - 150, 64);
+            }
+
+            // Dessine le PNJ du tutoriel
+            if (tutorialNPC) {
+                drawPixelCharacter(ctx, tutorialNPC, tutorialNPC.x, tutorialNPC.y - 70, 64);
+            }
+
+            // Dessine les clients
+            customers.forEach(customer => {
+                drawPixelCharacter(ctx, { colors: customer.colors, draw: pixelCharacters[0].draw }, customer.x, customer.y - 70, 64); // Utilise la fonction de dessin du premier personnage pour les clients
+            });
         }
 
         /**
-         * @function handleInteraction
-         * @description Gère les interactions du joueur avec les objets du monde.
+         * Boucle d'animation principale du jeu.
          */
-        function handleInteraction() {
-            if (!interactionTarget) return;
-
-            // Exemple d'interaction: entrer/sortir du véhicule
-            if (interactionTarget.userData.isVehicle) {
-                if (!inVehicle) {
-                    enterVehicle();
-                } else {
-                    exitVehicle();
-                }
-            }
-            // Exemple d'interaction: ouvrir/fermer une porte
-            else if (interactionTarget.userData.isDoor) {
-                if (!interactionTarget.userData.isOpen) {
-                    interactionTarget.rotation.y += Math.PI / 2; // Ouvre la porte
-                    interactionTarget.userData.isOpen = true;
-                    showMessageBox('La porte est ouverte.');
-                } else {
-                    interactionTarget.rotation.y -= Math.PI / 2; // Ferme la porte
-                    interactionTarget.userData.isOpen = false;
-                    showMessageBox('La porte est fermée.');
-                }
-            }
-            // Ajouter d'autres types d'interactions ici
+        function animate() {
+            drawStudio(); // Dessine le studio et ses éléments
+            requestAnimationFrame(animate); // Demande au navigateur de rappeler animate pour le prochain rafraîchissement
         }
-
-        /**
-         * @function enterVehicle
-         * @description Fait entrer le joueur dans le véhicule.
-         */
-        function enterVehicle() {
-            inVehicle = true;
-            playerMesh.visible = false; // Cache le mesh du joueur
-            playerBody.collisionResponse = 0; // Désactive les collisions du joueur
-            playerBody.position.copy(vehicleBody.position); // Positionne le corps du joueur avec le véhicule
-            playerBody.velocity.set(0,0,0); // Arrête le joueur
-
-            showMessageBox('Vous êtes monté dans le véhicule.');
-            hudSpeedElement.textContent = '0 km/h'; // Réinitialise la vitesse
-        }
-
-        /**
-         * @function exitVehicle
-         * @description Fait sortir le joueur du véhicule.
-         */
-        function exitVehicle() {
-            inVehicle = false;
-            playerMesh.visible = true; // Affiche le mesh du joueur
-            playerBody.collisionResponse = 1; // Réactive les collisions du joueur
-
-            // Positionne le joueur à côté du véhicule
-            playerBody.position.set(
-                vehicleBody.position.x + 2,
-                vehicleBody.position.y + 2,
-                vehicleBody.position.z
-            );
-            playerBody.velocity.set(0,0,0); // Arrête le joueur
-            showMessageBox('Vous êtes sorti du véhicule.');
-        }
-
-        /**
-         * @function updateHUD
-         * @description Met à jour les informations affichées dans le HUD.
-         */
-        function updateHUD() {
-            // Mise à jour de la vitesse du véhicule si le joueur est dedans
-            if (inVehicle) {
-                const speed = vehicleBody.velocity.length() * 3.6; // m/s en km/h
-                hudSpeedElement.textContent = `${speed.toFixed(0)} km/h`;
-            } else {
-                hudSpeedElement.textContent = '0 km/h';
-            }
-
-            // Vérifie les objets interactifs à proximité
-            raycaster.setFromCamera(mouse, camera); // Utilise la position de la souris (centre de l'écran ou là où l'utilisateur clique)
-            // Pour un jeu à la première personne, on peut lancer un rayon depuis la caméra vers l'avant
-            const playerDirection = new THREE.Vector3();
-            camera.getWorldDirection(playerDirection);
-            raycaster.set(camera.position, playerDirection);
-
-            const intersects = raycaster.intersectObjects(scene.children, true);
-            interactionTarget = null;
-            interactionPrompt.style.display = 'none';
-
-            for (let i = 0; i < intersects.length; i++) {
-                const object = intersects[i].object;
-                // Vérifie si l'objet est interactif et à une distance raisonnable
-                if ((object.userData.isVehicle || object.userData.isDoor) && intersects[i].distance < 5) {
-                    interactionTarget = object;
-                    interactionPrompt.style.display = 'block';
-                    interactionKeyElement.textContent = keyBindings['interact'];
-                    break;
-                }
-            }
-        }
-
-        /**
-         * @function animate
-         * @description Boucle principale du jeu.
-         */
-        let lastTime = 0;
-        function animate(time) {
-            requestAnimationFrame(animate);
-
-            const deltaTime = (time - lastTime) / 1000; // Convertit en secondes
-            lastTime = time;
-
-            if (gameRunning) {
-                // Mise à jour de la physique
-                world.step(1 / 60, deltaTime, 3); // 60 FPS, deltaTime, 3 itérations
-
-                // Synchronisation des meshes Three.js avec les corps Cannon.js
-                playerMesh.position.copy(playerBody.position);
-                playerMesh.quaternion.copy(playerBody.quaternion);
-
-                vehicleMesh.position.copy(vehicleBody.position);
-                vehicleMesh.quaternion.copy(vehicleBody.quaternion);
-
-                // Mouvement du joueur ou du véhicule
-                if (inVehicle) {
-                    updateVehicleMovement();
-                    // Assure que le corps du joueur suit le véhicule pour les interactions futures
-                    playerBody.position.copy(vehicleBody.position);
-                } else {
-                    updatePlayerMovement();
-                }
-
-                // Mise à jour du cycle jour/nuit
-                updateDayNightCycle(deltaTime);
-
-                // Mise à jour de la météo
-                updateWeather(deltaTime);
-
-                // Mise à jour du HUD
-                updateHUD();
-
-                // Rendu de la scène
-                renderer.render(scene, camera);
-            }
-        }
-
-        // --- Initialisation du Jeu au chargement de la fenêtre ---
-        window.onload = function () {
-            initGame();
-            initPhysics();
-            initUI();
-            showMenu('main-menu'); // Affiche le menu principal au démarrage
-            animate(0); // Démarre la boucle d'animation
-        };
     </script>
 </body>
 </html>
-
